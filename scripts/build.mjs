@@ -1,7 +1,9 @@
 import { readFile, writeFile, mkdir, cp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { loadData, validate } from './lib/data.mjs';
-import { renderTemplate, escapeHtml } from './lib/render.mjs';
+import {
+  renderTemplate, escapeHtml, attr,
+} from './lib/render.mjs';
 import { renderNavLinks, renderPanels, renderLocationList } from './lib/fragments.mjs';
 import { buildJsonLd } from './lib/schema.mjs';
 import { renderHoldingBlock, renderCompanyTable, renderLiabilitySection } from './lib/legal.mjs';
@@ -32,28 +34,34 @@ export async function build({
   }
 
   const { holding, content } = data;
+  // Escaped once here so every page title below can interpolate it without
+  // re-escaping (and without double-escaping) the site name.
+  const siteName = escapeHtml(content.siteName);
   const common = {
-    siteName: content.siteName,
-    copyright: content.footer.copyright,
+    siteName,
+    copyright: escapeHtml(content.footer.copyright),
   };
 
   const indexVars = {
     ...common,
-    title: content.title,
-    metaDescription: content.metaDescription,
+    title: escapeHtml(content.title),
+    metaDescription: attr(content.metaDescription),
     navLinks: renderNavLinks(data),
     panels: renderPanels(data),
-    heroKicker: content.hero.kicker,
+    heroKicker: escapeHtml(content.hero.kicker),
+    // hero.headline and worldwide.title intentionally carry raw markup
+    // (an <em> emphasis) and must not be escaped, or the tag would show
+    // up as visible text instead of rendering.
     heroHeadline: content.hero.headline,
-    wwKicker: content.worldwide.kicker,
+    wwKicker: escapeHtml(content.worldwide.kicker),
     wwTitle: content.worldwide.title,
-    wwSub: content.worldwide.sub,
-    locationsTitle: content.worldwide.locationsTitle,
+    wwSub: escapeHtml(content.worldwide.sub),
+    locationsTitle: escapeHtml(content.worldwide.locationsTitle),
     locations: renderLocationList(data),
-    contactTitle: content.contact.title,
+    contactTitle: escapeHtml(content.contact.title),
     contactAddress: holding.address.map((l) => escapeHtml(l)).join('<br>'),
-    labelPhone: content.contact.labelPhone,
-    labelMail: content.contact.labelMail,
+    labelPhone: escapeHtml(content.contact.labelPhone),
+    labelMail: escapeHtml(content.contact.labelMail),
     phone: escapeHtml(holding.phone),
     phoneHref: holding.phone.replace(/\s/g, ''),
     mail: escapeHtml(holding.mail),
@@ -65,13 +73,13 @@ export async function build({
     ['index.html', 'index.tmpl.html', indexVars],
     ['impressum.html', 'impressum.tmpl.html', {
       ...common,
-      title: `Impressum — ${content.siteName}`,
+      title: `Impressum — ${siteName}`,
       holdingBlock: renderHoldingBlock(data),
       liabilitySection: renderLiabilitySection(data),
       companyTable: renderCompanyTable(data),
     }],
-    ['agb.html', 'agb.tmpl.html', { ...common, title: `AGB — ${content.siteName}` }],
-    ['datenschutz.html', 'datenschutz.tmpl.html', { ...common, title: `Datenschutz — ${content.siteName}` }],
+    ['agb.html', 'agb.tmpl.html', { ...common, title: `AGB — ${siteName}` }],
+    ['datenschutz.html', 'datenschutz.tmpl.html', { ...common, title: `Datenschutz — ${siteName}` }],
   ];
 
   await rm(outDir, { recursive: true, force: true });

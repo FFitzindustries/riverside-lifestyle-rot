@@ -92,3 +92,12 @@ test('sitemap lists the built pages', async () => {
   assert.match(xml, /impressum\.html/);
   await rm(out, { recursive: true, force: true });
 });
+
+test('content text is escaped but intentional markup fields still render as real elements', async () => {
+  const { out } = await buildToTmp();
+  const html = await readFile(join(out, 'index.html'), 'utf8');
+  const title = html.match(/<title>([\s\S]*?)<\/title>/)[1];
+  assert.doesNotMatch(title, /&(?!amp;|lt;|gt;|quot;|#39;)/, 'raw & in <title>');
+  assert.match(html, /<em>Lifestyle<\/em>/, 'hero headline lost its real <em> element');
+  await rm(out, { recursive: true, force: true });
+});
