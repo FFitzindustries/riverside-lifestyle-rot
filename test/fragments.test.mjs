@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { brandHref, renderNavLinks, renderPanels, renderLocationList } from '../scripts/lib/fragments.mjs';
+import { brandHref, renderNavLinks, renderPanels, renderLocationList, panelsClass } from '../scripts/lib/fragments.mjs';
 
 const data = {
   brands: [
@@ -90,4 +90,16 @@ test('renderLocationList names the brands present at a location', () => {
   const html = renderLocationList(data);
   assert.match(html, /Riverside Ink/);
   assert.match(html, /Riverside Gastro/);
+});
+
+test('four or fewer brands keep the column layout', () => {
+  assert.equal(panelsClass(data), 'panels');
+});
+
+test('five or more brands switch to the grid layout', () => {
+  const many = { brands: Array.from({ length: 5 }, (_, i) => ({
+    slug: `b${i}`, name: `B${i}`, short: `B${i}`, sub: 's', url: 'https://x.test',
+    status: 'live', media: { video: 'v.mp4', poster: 'p.jpg' }, order: i,
+  })), locations: [] };
+  assert.equal(panelsClass(many), 'panels panels--grid');
 });

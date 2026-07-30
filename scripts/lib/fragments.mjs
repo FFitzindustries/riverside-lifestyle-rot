@@ -61,3 +61,8 @@ ${items}
       </div>`;
   }).join('\n');
 }
+
+/** Column layout stops working once the panels get too narrow. */
+export function panelsClass(data) {
+  return liveBrands(data).length >= 5 ? 'panels panels--grid' : 'panels';
+}

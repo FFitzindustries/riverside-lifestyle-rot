@@ -4,7 +4,7 @@ import { loadData, validate, liveBrands } from './lib/data.mjs';
 import {
   renderTemplate, escapeHtml, attr,
 } from './lib/render.mjs';
-import { renderNavLinks, renderPanels, renderLocationList } from './lib/fragments.mjs';
+import { renderNavLinks, renderPanels, renderLocationList, panelsClass } from './lib/fragments.mjs';
 import { buildJsonLd } from './lib/schema.mjs';
 import { renderHoldingBlock, renderCompanyTable, renderLiabilitySection } from './lib/legal.mjs';
 
@@ -56,6 +56,7 @@ export async function build({
     metaDescription: attr(content.metaDescription),
     navLinks: renderNavLinks(data),
     panels: renderPanels(data),
+    panelsClass: panelsClass(data),
     heroKicker: escapeHtml(content.hero.kicker),
     // hero.headline and worldwide.title intentionally carry raw markup
     // (an <em> emphasis) and must not be escaped, or the tag would show
