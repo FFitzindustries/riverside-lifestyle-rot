@@ -31,6 +31,23 @@ ${urls}
 `;
 }
 
+/**
+ * Makes a JSON string safe to drop into a <script> block.
+ *
+ * The content of a <script> element is raw text: the parser does not decode
+ * entities there, it only looks for the closing tag. JSON.stringify does not
+ * escape "<", so a brand name containing "</script>" would close the block
+ * early and everything after it would be parsed as HTML. Rewriting every "<"
+ * as its JSON unicode escape (see below) keeps the document semantically
+ * identical — JSON.parse turns it back into "<" — while making an early
+ * close impossible. An HTML entity would not work here: it does not get
+ * decoded inside a script block and would survive into the parsed value as
+ * the literal text "&lt;".
+ */
+export function escapeForScriptBlock(json) {
+  return json.replaceAll('<', '\\u003C');
+}
+
 // Legal pages (AGB, Datenschutz) intentionally still carry a few open
 // business decisions that only the client can supply — a guessed deposit
 // amount or court of jurisdiction would be worse than an honest gap. Every
@@ -93,7 +110,7 @@ export async function build({
     phoneHref: holding.phone.replace(/\s/g, ''),
     mail: escapeHtml(holding.mail),
     facebookUrl: holding.social.facebook,
-    jsonLd: buildJsonLd(data),
+    jsonLd: escapeForScriptBlock(buildJsonLd(data)),
   };
 
   const pages = [

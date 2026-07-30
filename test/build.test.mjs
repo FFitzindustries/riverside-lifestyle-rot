@@ -1,11 +1,23 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile, cp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { build, countUnfinished } from '../scripts/build.mjs';
+import { build, countUnfinished, escapeForScriptBlock } from '../scripts/build.mjs';
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// A throwaway copy of data/ with one file rewritten. Cheaper to keep honest
+// than a fourth full fixture directory: it follows every structural change to
+// the real data automatically.
+async function patchedDataDir(file, patch) {
+  const dir = await mkdtemp(join(tmpdir(), 'rl-data-'));
+  await cp('data', dir, { recursive: true });
+  const path = join(dir, file);
+  const json = JSON.parse(await readFile(path, 'utf8'));
+  await writeFile(path, JSON.stringify(patch(json), null, 2), 'utf8');
+  return dir;
+}
 
 // copyStatic bleibt aus, damit nicht jeder Testfall 2,6 MB Video kopiert.
 async function buildToTmp(opts = {}) {
@@ -230,4 +242,40 @@ test('a hub page escapes brand text, including inside the meta description attri
   assert.doesNotMatch(title, /&(?!amp;|lt;|gt;|quot;|#39;)/, 'raw & in brand page <title>');
 
   await rm(out, { recursive: true, force: true });
+});
+
+// Regression test for a review finding: JSON.stringify does not escape "<",
+// and the content of a <script> block is raw text the parser scans only for
+// a closing tag. A brand name carrying "</script>" therefore used to close
+// the JSON-LD block early and turn the rest of the JSON into HTML. The data
+// comes from this repository, but it was the last unescaped injection point.
+test('a "</script>" in a brand name cannot break out of the JSON-LD block', async () => {
+  const marker = '</script><img src=x onerror=alert(1)>';
+  const dataDir = await patchedDataDir('brands.json', (brands) =>
+    brands.map((b) => (b.slug === 'gastro' ? { ...b, name: `Riverside Gastro ${marker}` } : b)));
+  const { out } = await buildToTmp({ dataDir });
+  const html = await readFile(join(out, 'index.html'), 'utf8');
+
+  const block = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(block, 'the JSON-LD block lost its closing tag');
+
+  // The block must still parse as one whole JSON document, and the name must
+  // survive round-trip unchanged — an HTML entity would corrupt it instead.
+  const graph = JSON.parse(block[1])['@graph'];
+  const gastro = graph.find((n) => n.name.startsWith('Riverside Gastro'));
+  assert.equal(gastro.name, `Riverside Gastro ${marker}`);
+
+  // Nothing from the payload may reach the document as real markup.
+  assert.doesNotMatch(html, /<img src=x onerror=alert\(1\)>/, 'the payload became live markup');
+  assert.equal(html.match(/<script type="application\/ld\+json">/g).length, 1);
+
+  await rm(out, { recursive: true, force: true });
+  await rm(dataDir, { recursive: true, force: true });
+});
+
+test('escapeForScriptBlock leaves the parsed value untouched', () => {
+  const json = JSON.stringify({ name: 'a < b </script>' });
+  const escaped = escapeForScriptBlock(json);
+  assert.doesNotMatch(escaped, /</, 'a raw < survived');
+  assert.equal(JSON.parse(escaped).name, 'a < b </script>');
 });
