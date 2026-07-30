@@ -92,6 +92,26 @@ test('renderLocationList names the brands present at a location', () => {
   assert.match(html, /Riverside Gastro/);
 });
 
+// Regression test for a review finding: the name map was built from all
+// brands, so a draft brand assigned to an open location became publicly
+// visible in the location list even though it appears in no nav link, no
+// panel and no JSON-LD node.
+test('renderLocationList hides a draft brand sitting at an open location', () => {
+  const withDraft = {
+    ...data,
+    locations: [{
+      ...data.locations[0],
+      brands: [
+        { brand: 'ink', companyId: 'c1' },
+        { brand: 'event', companyId: 'c4' },
+      ],
+    }],
+  };
+  const html = renderLocationList(withDraft);
+  assert.match(html, /Riverside Ink/, 'the live brand disappeared too');
+  assert.doesNotMatch(html, /Riverside Event/, 'a draft brand reached the public location list');
+});
+
 test('four or fewer brands keep the column layout', () => {
   assert.equal(panelsClass(data), 'panels');
 });

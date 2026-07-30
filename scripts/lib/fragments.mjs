@@ -30,7 +30,12 @@ export function renderPanels(data) {
 
 /** Open locations, grouped by country, with the brands present at each. */
 export function renderLocationList(data) {
-  const brandName = new Map((data.brands ?? []).map((b) => [b.slug, b.name]));
+  // Only live brands: this list is public. A draft brand assigned to an open
+  // location would otherwise announce itself here before anyone decided to
+  // launch it — and "event" already sits in brands.json as a draft, so that
+  // is one data edit away. Slugs with no live brand fall out at the
+  // .filter(Boolean) below.
+  const brandName = new Map(liveBrands(data).map((b) => [b.slug, b.name]));
   const open = (data.locations ?? []).filter((l) => l.status === 'open');
 
   const byCountry = new Map();
