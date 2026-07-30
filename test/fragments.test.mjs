@@ -1,0 +1,93 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { brandHref, renderNavLinks, renderPanels, renderLocationList } from '../scripts/lib/fragments.mjs';
+
+const data = {
+  brands: [
+    {
+      slug: 'ink', name: 'Riverside Ink', short: 'Ink',
+      sub: 'Tattoo · Piercing', url: 'https://www.riverside-ink.ch',
+      status: 'live', media: { video: 'ink.mp4', poster: 'ink.jpg' }, order: 1,
+    },
+    {
+      slug: 'gastro', name: 'Riverside Gastro', short: 'Gastro',
+      sub: 'Küche · Bar', url: '',
+      status: 'live', media: { video: 'gastro.mp4', poster: 'gastro.jpg' }, order: 2,
+    },
+    {
+      slug: 'event', name: 'Riverside Event', short: 'Event',
+      sub: 'Events', url: '', status: 'draft',
+      media: { video: '', poster: '' }, order: 3,
+    },
+  ],
+  locations: [
+    {
+      slug: 'st-margrethen', city: 'St. Margrethen', country: 'CH', countryName: 'Schweiz',
+      address: ['Grenzstrasse 25', '9430 St. Margrethen'], status: 'open',
+      brands: [{ brand: 'ink', companyId: 'c1' }, { brand: 'gastro', companyId: 'c2' }],
+    },
+    {
+      slug: 'london', city: 'London', country: 'GB', countryName: 'Vereinigtes Königreich',
+      address: ['Somewhere 1', 'London'], status: 'planned',
+      brands: [{ brand: 'ink', companyId: 'c3' }],
+    },
+  ],
+};
+
+test('brandHref uses the external url when present', () => {
+  assert.equal(brandHref(data.brands[0]), 'https://www.riverside-ink.ch');
+});
+
+test('brandHref falls back to a local page when url is empty', () => {
+  assert.equal(brandHref(data.brands[1]), '/gastro/');
+});
+
+test('renderNavLinks lists live brands only', () => {
+  const html = renderNavLinks(data);
+  assert.match(html, /Ink<\/a>/);
+  assert.match(html, /Gastro<\/a>/);
+  assert.doesNotMatch(html, /Event/);
+});
+
+test('renderNavLinks keeps Team and Kontakt out — those belong to the template', () => {
+  assert.doesNotMatch(renderNavLinks(data), /Kontakt/);
+});
+
+test('renderPanels renders one panel per live brand', () => {
+  const html = renderPanels(data);
+  assert.equal(html.match(/class="panel"/g).length, 2);
+});
+
+test('renderPanels wires video, poster and brand marker', () => {
+  const html = renderPanels(data);
+  assert.match(html, /assets\/video\/ink\.mp4/);
+  assert.match(html, /poster="assets\/poster\/ink\.jpg"/);
+  assert.match(html, /data-brand="ink"/);
+});
+
+test('renderPanels escapes brand text', () => {
+  const evil = { brands: [{
+    slug: 'x', name: 'X', short: '<b>X</b>', sub: 'a & b', url: 'https://x.test',
+    status: 'live', media: { video: 'x.mp4', poster: 'x.jpg' }, order: 1,
+  }], locations: [] };
+  const html = renderPanels(evil);
+  assert.match(html, /&lt;b&gt;X&lt;\/b&gt;/);
+  assert.match(html, /a &amp; b/);
+});
+
+test('renderLocationList shows open locations grouped by country', () => {
+  const html = renderLocationList(data);
+  assert.match(html, /Schweiz/);
+  assert.match(html, /St\. Margrethen/);
+});
+
+test('renderLocationList hides planned locations', () => {
+  const html = renderLocationList(data);
+  assert.doesNotMatch(html, /London/);
+});
+
+test('renderLocationList names the brands present at a location', () => {
+  const html = renderLocationList(data);
+  assert.match(html, /Riverside Ink/);
+  assert.match(html, /Riverside Gastro/);
+});
