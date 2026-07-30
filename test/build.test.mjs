@@ -93,6 +93,14 @@ test('sitemap lists the built pages', async () => {
   await rm(out, { recursive: true, force: true });
 });
 
+test('sitemap shortens every index.html page to its directory URL', async () => {
+  const { out } = await buildToTmp();
+  const xml = await readFile(join(out, 'sitemap.xml'), 'utf8');
+  assert.match(xml, /<loc>https:\/\/riverside-lifestyle\.com\/gastro\/<\/loc>/);
+  assert.doesNotMatch(xml, /gastro\/index\.html/);
+  await rm(out, { recursive: true, force: true });
+});
+
 test('content text is escaped but intentional markup fields still render as real elements', async () => {
   const { out } = await buildToTmp();
   const html = await readFile(join(out, 'index.html'), 'utf8');
@@ -127,4 +135,27 @@ test('the panel of a domainless brand points at its hub page', async () => {
 test('draft brands get no page at all', async () => {
   const { result } = await buildToTmp();
   assert.ok(!result.written.includes('event/index.html'));
+});
+
+// Regression test for a review finding: the hub-page loop once passed brand
+// name, description and shared content titles into the template unescaped.
+// This fixture brand carries an "&" in its name and a quote in its
+// description, both of which break HTML (an unescaped quote inside the
+// content="..." attribute) if escaping regresses.
+test('a hub page escapes brand text, including inside the meta description attribute', async () => {
+  const { out, result } = await buildToTmp({ dataDir: 'test/fixtures/special-chars' });
+  assert.ok(result.written.includes('gastro/index.html'));
+  const html = await readFile(join(out, 'gastro/index.html'), 'utf8');
+
+  assert.match(html, /Riverside Gastro &amp; Bar/, 'brand name lost its escaped ampersand');
+  assert.doesNotMatch(html, /Riverside Gastro & Bar/, 'raw & leaked into the page');
+
+  const metaTag = html.match(/<meta name="description" content="([\s\S]*?)">/)[1];
+  assert.doesNotMatch(metaTag, /"/, 'unescaped quote broke out of the content attribute');
+  assert.match(metaTag, /&quot;Hausgemacht&quot;/, 'description quotes were not escaped');
+
+  const title = html.match(/<title>([\s\S]*?)<\/title>/)[1];
+  assert.doesNotMatch(title, /&(?!amp;|lt;|gt;|quot;|#39;)/, 'raw & in brand page <title>');
+
+  await rm(out, { recursive: true, force: true });
 });

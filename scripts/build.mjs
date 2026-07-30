@@ -11,10 +11,18 @@ import { renderHoldingBlock, renderCompanyTable, renderLiabilitySection } from '
 const STATIC_DIRS = ['assets', 'css', 'js'];
 const STATIC_FILES = ['robots.txt', 'llms.txt', 'favicon.svg', '.nojekyll'];
 
+// Every page written as .../index.html is served at its directory, so the
+// sitemap should point there too — not at the literal file — to avoid two
+// URL forms for the same page (bad for canonicalization).
+function sitemapPath(page) {
+  if (page === 'index.html') return '';
+  return page.endsWith('/index.html') ? `${page.slice(0, -'index.html'.length)}` : page;
+}
+
 function sitemap(holding, pages) {
   const base = holding.url.replace(/\/$/, '');
   const urls = pages
-    .map((p) => `  <url><loc>${base}/${p === 'index.html' ? '' : p}</loc></url>`)
+    .map((p) => `  <url><loc>${base}/${sitemapPath(p)}</loc></url>`)
     .join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -102,15 +110,15 @@ export async function build({
     };
     const html = renderTemplate(brandTemplate, {
       ...common,
-      title: `${brand.name} — ${content.siteName}`,
-      metaDescription: brand.description,
+      title: `${escapeHtml(brand.name)} — ${siteName}`,
+      metaDescription: attr(brand.description),
       navLinks: renderNavLinks(data),
       brandName: escapeHtml(brand.name),
       brandSub: escapeHtml(brand.sub),
       brandDescription: escapeHtml(brand.description),
-      locationsTitle: content.worldwide.locationsTitle,
+      locationsTitle: escapeHtml(content.worldwide.locationsTitle),
       locations: renderLocationList(locationsForBrand),
-      contactTitle: content.contact.title,
+      contactTitle: escapeHtml(content.contact.title),
       contactAddress: holding.address.map((l) => escapeHtml(l)).join('<br>'),
       mail: escapeHtml(holding.mail),
       phone: escapeHtml(holding.phone),

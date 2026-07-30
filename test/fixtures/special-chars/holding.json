@@ -1,0 +1,21 @@
+{
+  "name": "Riverside Lifestyle Holding AG",
+  "legalForm": "Aktiengesellschaft",
+  "address": ["Grenzstrasse 25", "9430 St. Margrethen", "Schweiz"],
+  "uid": "CHE-405.114.788",
+  "hrNumber": "CH-320.3.091.625-0",
+  "register": "Handelsregisteramt des Kantons St. Gallen",
+  "registeredSince": "SHAB Nr. 108 vom 08.06.2021",
+  "shareCapital": "CHF 100'000, eingeteilt in 1'000 Namenaktien zu CHF 100",
+  "purpose": "Erwerb, Halten, Verwalten und Veräussern von Beteiligungen an Unternehmen im In- und Ausland.",
+  "board": [
+    { "name": "Janine Maria Fitz", "role": "Verwaltungsrätin", "signature": "Einzelunterschrift" }
+  ],
+  "vat": null,
+  "mail": "info@riverside-lifestyle.ch",
+  "phone": "+41 79 901 81 81",
+  "url": "https://riverside-lifestyle.com",
+  "social": {
+    "facebook": "https://www.facebook.com/profile.php?id=61592156620591"
+  }
+}
