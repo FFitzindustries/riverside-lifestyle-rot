@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { build } from '../scripts/build.mjs';
+import { build, countUnfinished } from '../scripts/build.mjs';
 
 // copyStatic bleibt aus, damit nicht jeder Testfall 2,6 MB Video kopiert.
 async function buildToTmp(opts = {}) {
@@ -56,6 +56,39 @@ test('the local font stylesheet is shipped', async () => {
   const css = await readFile(join(out, 'css/fonts.css'), 'utf8');
   assert.match(css, /@font-face/);
   assert.match(css, /\/assets\/fonts\//);
+  await rm(out, { recursive: true, force: true });
+});
+
+// Generic, not a literal string list: catches class="todo" markers and any
+// "[free text]" bracket placeholder, so a forgotten class does not slip
+// through. These three pages must always be fully resolved.
+test('index, impressum and the gastro hub page carry no open legal placeholders', async () => {
+  const { out } = await buildToTmp();
+  for (const f of ['index.html', 'impressum.html', 'gastro/index.html']) {
+    const html = await readFile(join(out, f), 'utf8');
+    assert.equal(countUnfinished(html), 0, `${f} still has an unresolved legal placeholder`);
+  }
+  await rm(out, { recursive: true, force: true });
+});
+
+// AGB and Datenschutz still contain real open business decisions that only
+// the client can supply (deposit amount, court of jurisdiction, hosting
+// provider and retention period, ...) — see task-9-report.md for the full
+// list. This pins the exact, currently known count instead of tolerating an
+// unbounded number of them: it turns red the moment someone adds a new
+// unresolved placeholder, and it turns red the moment someone resolves one,
+// which forces a deliberate update of the number below rather than a silent
+// drift in either direction.
+test('agb and datenschutz document exactly their known open legal placeholders', async () => {
+  const { out } = await buildToTmp();
+  const agb = await readFile(join(out, 'agb.html'), 'utf8');
+  const datenschutz = await readFile(join(out, 'datenschutz.html'), 'utf8');
+  assert.equal(countUnfinished(agb), 6, 'agb.html open-placeholder count changed — update this test deliberately');
+  assert.equal(
+    countUnfinished(datenschutz),
+    2,
+    'datenschutz.html open-placeholder count changed — update this test deliberately',
+  );
   await rm(out, { recursive: true, force: true });
 });
 

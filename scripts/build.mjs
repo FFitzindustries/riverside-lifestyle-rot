@@ -31,6 +31,24 @@ ${urls}
 `;
 }
 
+// Legal pages (AGB, Datenschutz) intentionally still carry a few open
+// business decisions that only the client can supply — a guessed deposit
+// amount or court of jurisdiction would be worse than an honest gap. Every
+// such gap is marked in the templates with class="todo". The bracket
+// pattern below is a second, independent check: it catches a future
+// placeholder that uses the same "[free text]" convention but forgets the
+// class, without depending on a literal list of known-bad strings.
+const TODO_SPAN = /<span class="todo">[\s\S]*?<\/span>/g;
+const BRACKET_PLACEHOLDER = /\[[^\]["{}:]*\p{L}[^\]["{}:]*\]/gu;
+
+/** Counts unresolved legal placeholders left in a rendered page. */
+export function countUnfinished(html) {
+  const spans = html.match(TODO_SPAN) ?? [];
+  const rest = html.replace(TODO_SPAN, '');
+  const brackets = rest.match(BRACKET_PLACEHOLDER) ?? [];
+  return spans.length + brackets.length;
+}
+
 /** Reads data and templates, writes the finished site to outDir. */
 export async function build({
   dataDir = 'data', srcDir = 'src', outDir = 'dist', copyStatic = true,
@@ -88,17 +106,25 @@ export async function build({
       companyTable: renderCompanyTable(data),
     }],
     ['agb.html', 'agb.tmpl.html', { ...common, title: `AGB — ${siteName}` }],
-    ['datenschutz.html', 'datenschutz.tmpl.html', { ...common, title: `Datenschutz — ${siteName}` }],
+    ['datenschutz.html', 'datenschutz.tmpl.html', {
+      ...common,
+      title: `Datenschutz — ${siteName}`,
+      mail: escapeHtml(holding.mail),
+    }],
   ];
 
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
 
   const written = [];
+  const unfinished = [];
   for (const [target, tmpl, vars] of pages) {
     const template = await readFile(join(srcDir, tmpl), 'utf8');
-    await writeFile(join(outDir, target), renderTemplate(template, vars), 'utf8');
+    const html = renderTemplate(template, vars);
+    await writeFile(join(outDir, target), html, 'utf8');
     written.push(target);
+    const count = countUnfinished(html);
+    if (count > 0) unfinished.push({ page: target, count });
   }
 
   const brandTemplate = await readFile(join(srcDir, 'brand.tmpl.html'), 'utf8');
@@ -127,6 +153,8 @@ export async function build({
     });
     await writeFile(join(dir, 'index.html'), html, 'utf8');
     written.push(`${brand.slug}/index.html`);
+    const count = countUnfinished(html);
+    if (count > 0) unfinished.push({ page: `${brand.slug}/index.html`, count });
   }
 
   await writeFile(join(outDir, 'sitemap.xml'), sitemap(holding, written), 'utf8');
@@ -141,13 +169,24 @@ export async function build({
     }
   }
 
-  return { written };
+  return { written, unfinished };
 }
 
 // Direct invocation: node scripts/build.mjs
 if (import.meta.url === `file://${process.argv[1]}`) {
   build()
-    .then((r) => console.log(`built ${r.written.length} pages into dist/`))
+    .then((r) => {
+      console.log(`built ${r.written.length} pages into dist/`);
+      // The build succeeds regardless — these are business decisions only
+      // the client can make, not bugs to fail the build over. But they must
+      // stay visible, or they end up shipped by an unattended deploy.
+      if (r.unfinished.length) {
+        console.warn(`WARNING: ${r.unfinished.length} page(s) still have open legal placeholders:`);
+        for (const { page, count } of r.unfinished) {
+          console.warn(`  - ${page}: ${count} open item(s)`);
+        }
+      }
+    })
     .catch((err) => {
       console.error(err.message);
       process.exit(1);
