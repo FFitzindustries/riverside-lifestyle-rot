@@ -18,7 +18,7 @@
 - **`dist/` wird nie committet.** Steht in `.gitignore`.
 - **Kein Tracking.** Kein Pixel, kein Analytics, kein Consent-Banner. Das ist ein Corporate-Portal.
 - **Primärdomain** ist `https://riverside-lifestyle.com`. Alle canonical-, OG- und JSON-LD-URLs verwenden sie.
-- **Tests laufen mit** `node --test test/`. Jede Task endet grün.
+- **Tests laufen mit** `node --test`. Jede Task endet grün.
 
 ---
 
@@ -1610,7 +1610,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
 - [ ] **Step 6: Tests laufen lassen, grün bestätigen**
 
-Run: `node --test test/`
+Run: `node --test`
 Expected: PASS, alle Tests aus Task 1 bis 6
 
 - [ ] **Step 7: Aufräumen und .gitignore**
@@ -1827,7 +1827,7 @@ An `css/styles.css` anhängen:
 
 - [ ] **Step 6: Tests laufen lassen, grün bestätigen**
 
-Run: `node --test test/`
+Run: `node --test`
 Expected: PASS, alle Tests
 
 - [ ] **Step 7: Manuell prüfen**
@@ -1925,7 +1925,7 @@ An `css/styles.css` anhängen:
 
 - [ ] **Step 5: Tests laufen lassen, grün bestätigen**
 
-Run: `node --test test/`
+Run: `node --test`
 Expected: PASS, alle Tests
 
 - [ ] **Step 6: Mit fünf Marken manuell prüfen**
@@ -2092,7 +2092,7 @@ Expected: FAIL beim Google-Fonts-Test, solange die Templates noch `fonts.googlea
 
 Nach den Änderungen aus Step 2 und 3:
 
-Run: `node --test test/`
+Run: `node --test`
 Expected: PASS, alle Tests
 
 - [ ] **Step 7: Manuell prüfen**
@@ -2154,7 +2154,7 @@ jobs:
         with:
           node-version: '24'
       - name: Run tests
-        run: node --test test/
+        run: node --test
       - name: Build
         run: node scripts/build.mjs
       - uses: actions/upload-pages-artifact@v3
@@ -2202,7 +2202,7 @@ cd dist && python3 -m http.server 8078
 ## Tests
 
 ```bash
-node --test test/
+node --test
 ```
 
 Keine Dependencies. Node 24 genügt.
@@ -2240,7 +2240,7 @@ Das ist Absicht: lieber kein Deployment als ein falsches Impressum.
 
 - [ ] **Step 4: Alles prüfen**
 
-Run: `node --test test/ && node scripts/build.mjs`
+Run: `node --test && node scripts/build.mjs`
 Expected: alle Tests grün, `built N pages into dist/`
 
 - [ ] **Step 5: Committen**
