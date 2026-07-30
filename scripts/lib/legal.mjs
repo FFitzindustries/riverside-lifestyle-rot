@@ -73,6 +73,6 @@ export function renderLiabilitySection(data) {
   const name = escapeHtml(data.holding.name);
   return `    <h2>Haftung und Zuständigkeit</h2>
     <p>Riverside Lifestyle ist die Dachmarke der ${name}. Die Holding hält die Marken und betreibt diese Website. Sie führt selbst keinen operativen Betrieb und erbringt keine Tattoo-, Piercing-, Bodymodification-, Beauty-, Laser- oder Gastronomieleistungen.</p>
-    <p>Jeder Standort wird von einer rechtlich eigenständigen Betriebsgesellschaft geführt. Ansprüche aus einer Behandlung oder Leistung richten sich gegen die jeweilige Betriebsgesellschaft und, soweit die Leistung von selbstständigen Auftragnehmerinnen und Auftragnehmern erbracht wird, gegen diese persönlich.</p>
+    <p>Jede Marke wird an jedem Standort von einer rechtlich eigenständigen Betriebsgesellschaft geführt; an einem Standort können mehrere Gesellschaften tätig sein. Welche Gesellschaft eine Marke an einem Standort betreibt, zeigt die Tabelle der Betriebsgesellschaften weiter unten. Ansprüche aus einer Behandlung oder Leistung richten sich gegen die dort genannte Betriebsgesellschaft und, soweit die Leistung von selbstständigen Auftragnehmerinnen und Auftragnehmern erbracht wird, gegen diese persönlich.</p>
     <p>Eine Haftung der ${name} für Leistungen der Betriebsgesellschaften ist im gesetzlich zulässigen Rahmen ausgeschlossen. Zwingende gesetzliche Haftungsbestimmungen bleiben vorbehalten.</p>`;
 }

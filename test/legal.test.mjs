@@ -100,10 +100,59 @@ test('an empty HR number does not render an empty label', () => {
   assert.doesNotMatch(rows[2], /HR-Nr\./);
 });
 
-test('the liability section names the holding and disclaims operations', () => {
+// The liability section is the legally load-bearing part of the impressum.
+// Pinning the whole paragraph verbatim would turn every editorial pass red,
+// so these tests pin only the statements it must not lose: the holding runs
+// nothing itself, claims go against the operating company, the holding's own
+// liability is excluded, and mandatory statutory liability stays reserved.
+// Each assertion binds subject, object and predicate together, so flipping
+// any one of them cannot slip through.
+function paragraphs(html) {
+  return [...html.matchAll(/<p>([\s\S]*?)<\/p>/g)].map((m) => m[1]);
+}
+
+test('the liability section names the holding and disclaims own operations', () => {
   const html = renderLiabilitySection(base);
   assert.match(html, /Riverside Lifestyle Holding AG/);
-  assert.match(html, /Betriebsgesellschaft/);
+  assert.match(html, /führt selbst keinen operativen Betrieb/);
+  assert.match(html, /erbringt keine/);
+});
+
+// Regression test for a review finding: the section claimed one company per
+// location while the table below it shows two companies at St. Margrethen —
+// which is exactly why the data model hangs the company off brand × location.
+test('the liability section attributes operation per brand and location', () => {
+  const html = renderLiabilitySection(base);
+  assert.match(html, /Jede Marke wird an jedem Standort von einer rechtlich eigenständigen Betriebsgesellschaft geführt/);
+  assert.doesNotMatch(
+    html,
+    /Jeder Standort wird von einer rechtlich eigenständigen Betriebsgesellschaft geführt/,
+    'claims one company per location, which the company table contradicts',
+  );
+});
+
+test('claims are directed at the operating company, not at the holding', () => {
+  const p = paragraphs(renderLiabilitySection(base)).find((t) => /Ansprüche/.test(t));
+  assert.ok(p, 'no paragraph telling the reader whom to direct claims at');
+  assert.match(p, /Ansprüche[^.]*richten sich gegen[^.]*Betriebsgesellschaft/);
+});
+
+test("the holding's liability for the operating companies stays excluded", () => {
+  const html = renderLiabilitySection(base);
+  const name = base.holding.name;
+  assert.match(
+    html,
+    new RegExp(`Eine Haftung der ${name} für Leistungen der Betriebsgesellschaften ist[^.]*ausgeschlossen`),
+    'the exclusion of the holding\'s liability lost its subject, object or its "ausgeschlossen"',
+  );
+  assert.doesNotMatch(html, /[Vv]olle Haftung|haftet (?:die|vollumfänglich)/, 'the section now affirms liability');
+});
+
+test('mandatory statutory liability provisions stay reserved', () => {
+  assert.match(
+    renderLiabilitySection(base),
+    /Zwingende gesetzliche Haftungsbestimmungen bleiben vorbehalten/,
+  );
 });
 
 test('real data renders every company', async () => {
