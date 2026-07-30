@@ -27,17 +27,35 @@ test('the built index contains one panel per live brand', async () => {
   await rm(out, { recursive: true, force: true });
 });
 
-// datenschutz.html kommt in Task 9 dazu, sobald der Google-Fonts-Absatz aufgeräumt ist.
 test('no placeholder survives into the output', async () => {
   const { out } = await buildToTmp();
-  for (const f of ['index.html', 'impressum.html', 'agb.html']) {
+  for (const f of ['index.html', 'impressum.html', 'agb.html', 'datenschutz.html']) {
     const html = await readFile(join(out, f), 'utf8');
     assert.doesNotMatch(html, /TODO/, `TODO in ${f}`);
     assert.doesNotMatch(html, /\[Platzhalter/, `Platzhalter in ${f}`);
+    assert.doesNotMatch(html, /\[Empfehlung/, `Empfehlung in ${f}`);
     assert.doesNotMatch(html, /CHE-123\.456\.789/, `fake UID in ${f}`);
     assert.doesNotMatch(html, /Musterstrasse/, `fake address in ${f}`);
     assert.doesNotMatch(html, /<!--\{\{/, `unfilled placeholder in ${f}`);
   }
+  await rm(out, { recursive: true, force: true });
+});
+
+test('no page loads fonts from Google', async () => {
+  const { out } = await buildToTmp();
+  for (const f of ['index.html', 'impressum.html', 'agb.html', 'datenschutz.html', 'gastro/index.html']) {
+    const html = await readFile(join(out, f), 'utf8');
+    assert.doesNotMatch(html, /fonts\.googleapis\.com/, `google fonts in ${f}`);
+    assert.doesNotMatch(html, /fonts\.gstatic\.com/, `gstatic in ${f}`);
+  }
+  await rm(out, { recursive: true, force: true });
+});
+
+test('the local font stylesheet is shipped', async () => {
+  const { out } = await buildToTmp({ copyStatic: true });
+  const css = await readFile(join(out, 'css/fonts.css'), 'utf8');
+  assert.match(css, /@font-face/);
+  assert.match(css, /\/assets\/fonts\//);
   await rm(out, { recursive: true, force: true });
 });
 
