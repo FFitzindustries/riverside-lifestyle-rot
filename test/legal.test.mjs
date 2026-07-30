@@ -177,6 +177,17 @@ test('real data maps brands correctly to companies', async () => {
     'ink-gastro': ['Riverside Gastro'],                    // gastro at St. Margrethen (separate company)
   };
 
+  // The loop below iterates the oracle, so a company added to
+  // data/companies.json would otherwise pass through completely unchecked —
+  // which is the exact case this impressum test exists for. This pins the
+  // oracle to the data first: a new company forces someone to state which
+  // brands it operates instead of silently skipping the check.
+  assert.deepEqual(
+    Object.keys(brandOracle).sort(),
+    data.companies.map((c) => c.id).sort(),
+    'brandOracle and data/companies.json disagree — add the new company to the oracle',
+  );
+
   // Verify each company's brands against the oracle
   for (const [companyId, expectedBrands] of Object.entries(brandOracle)) {
     const company = data.companies.find(c => c.id === companyId);

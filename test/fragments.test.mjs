@@ -112,14 +112,61 @@ test('renderLocationList hides a draft brand sitting at an open location', () =>
   assert.doesNotMatch(html, /Riverside Event/, 'a draft brand reached the public location list');
 });
 
-test('four or fewer brands keep the column layout', () => {
+// Escaping used to be covered for brand names only, so removing it from the
+// city and the address lines stayed green. Location data is edited by hand
+// for every new opening, which makes it exactly as likely to carry an
+// ampersand as anything else.
+test('renderLocationList escapes city, address and country name', () => {
+  const evil = {
+    brands: [{
+      slug: 'ink', name: 'Riverside Ink', short: 'Ink', sub: 's', url: 'https://x.test',
+      status: 'live', media: { video: 'v.mp4', poster: 'p.jpg' }, order: 1,
+    }],
+    locations: [{
+      slug: 'x', city: '<b>Chur</b>', country: 'CH', countryName: 'Schweiz & Liechtenstein',
+      address: ['Weg 1 & 2', '<i>7000</i> Chur'], status: 'open',
+      brands: [{ brand: 'ink', companyId: 'c1' }],
+    }],
+  };
+  const html = renderLocationList(evil);
+
+  assert.match(html, /&lt;b&gt;Chur&lt;\/b&gt;/, 'city was not escaped');
+  assert.match(html, /Weg 1 &amp; 2/, 'address ampersand was not escaped');
+  assert.match(html, /&lt;i&gt;7000&lt;\/i&gt; Chur/, 'address markup was not escaped');
+  assert.match(html, /Schweiz &amp; Liechtenstein/, 'country name was not escaped');
+
+  assert.doesNotMatch(html, /<b>|<i>/, 'raw markup from the data became real elements');
+});
+
+// Both sides of the threshold, so moving it from 5 to 4 cannot stay green.
+// The four-brand case carries a draft brand on top, which also pins that the
+// threshold counts live brands rather than all of them.
+const brandsFor = (live, draft = 0) => ({
+  brands: [
+    ...Array.from({ length: live }, (_, i) => ({
+      slug: `b${i}`, name: `B${i}`, short: `B${i}`, sub: 's', url: 'https://x.test',
+      status: 'live', media: { video: 'v.mp4', poster: 'p.jpg' }, order: i,
+    })),
+    ...Array.from({ length: draft }, (_, i) => ({
+      slug: `d${i}`, name: `D${i}`, short: `D${i}`, sub: 's', url: '',
+      status: 'draft', media: { video: '', poster: '' }, order: 100 + i,
+    })),
+  ],
+  locations: [],
+});
+
+test('two live brands keep the column layout', () => {
   assert.equal(panelsClass(data), 'panels');
 });
 
-test('five or more brands switch to the grid layout', () => {
-  const many = { brands: Array.from({ length: 5 }, (_, i) => ({
-    slug: `b${i}`, name: `B${i}`, short: `B${i}`, sub: 's', url: 'https://x.test',
-    status: 'live', media: { video: 'v.mp4', poster: 'p.jpg' }, order: i,
-  })), locations: [] };
-  assert.equal(panelsClass(many), 'panels panels--grid');
+test('four live brands still keep the column layout', () => {
+  assert.equal(panelsClass(brandsFor(4)), 'panels');
+});
+
+test('a draft brand does not push the layout over the threshold', () => {
+  assert.equal(panelsClass(brandsFor(4, 1)), 'panels');
+});
+
+test('five live brands switch to the grid layout', () => {
+  assert.equal(panelsClass(brandsFor(5)), 'panels panels--grid');
 });

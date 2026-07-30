@@ -4,6 +4,7 @@ import { mkdtemp, readFile, writeFile, cp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { build, countUnfinished, escapeForScriptBlock } from '../scripts/build.mjs';
+import { loadData, liveBrands } from '../scripts/lib/data.mjs';
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -34,10 +35,18 @@ test('build writes the expected pages', async () => {
   await rm(out, { recursive: true, force: true });
 });
 
+// Derived from the data, not pinned to a number: adding a fourth brand to
+// data/brands.json must not force an edit here, or the test contradicts the
+// point of the data-driven build.
 test('the built index contains one panel per live brand', async () => {
   const { out } = await buildToTmp();
   const html = await readFile(join(out, 'index.html'), 'utf8');
-  assert.equal(html.match(/class="panel"/g).length, 3);
+  const data = await loadData('data');
+  assert.equal(html.match(/class="panel"/g).length, liveBrands(data).length);
+  for (const brand of data.brands.filter((b) => b.status !== 'live')) {
+    assert.doesNotMatch(html, new RegExp(`data-brand="${escapeRe(brand.slug)}"`),
+      `draft brand ${brand.slug} got a panel`);
+  }
   await rm(out, { recursive: true, force: true });
 });
 
@@ -71,6 +80,27 @@ test('the local font stylesheet is shipped', async () => {
   assert.match(css, /@font-face/);
   assert.match(css, /\/assets\/fonts\//);
   await rm(out, { recursive: true, force: true });
+});
+
+// countUnfinished has two independent branches. Every placeholder in the
+// templates today is a class="todo" span, so the bracket branch — which was
+// itself the fix for an earlier gap, a placeholder that forgot the class —
+// was covered by nothing and could be deleted without a test noticing.
+test('countUnfinished counts class="todo" spans', () => {
+  assert.equal(countUnfinished('<p>Frist: <span class="todo">wird ergänzt</span></p>'), 1);
+});
+
+test('countUnfinished also counts a bracket placeholder that forgot the class', () => {
+  assert.equal(countUnfinished('<p>Gerichtsstand ist [Ort noch offen].</p>'), 1);
+});
+
+test('countUnfinished counts both kinds in the same page exactly once each', () => {
+  const html = '<p><span class="todo">[offen]</span> und [noch ein offener Punkt].</p>';
+  assert.equal(countUnfinished(html), 2);
+});
+
+test('countUnfinished leaves finished markup alone', () => {
+  assert.equal(countUnfinished('<p>Gerichtsstand ist St. Gallen.</p>'), 0);
 });
 
 // Generic, not a literal string list: catches class="todo" markers and any
@@ -271,6 +301,23 @@ test('a "</script>" in a brand name cannot break out of the JSON-LD block', asyn
 
   await rm(out, { recursive: true, force: true });
   await rm(dataDir, { recursive: true, force: true });
+});
+
+// The special-chars fixture used to be driven against the brand page only,
+// so the start page's own meta description — a different code path, fed from
+// content.de.json instead of the brand record — was never checked. An
+// unescaped quote there breaks out of the content="..." attribute.
+test('the start page escapes its meta description inside the content attribute', async () => {
+  const { out } = await buildToTmp({ dataDir: 'test/fixtures/special-chars' });
+  const html = await readFile(join(out, 'index.html'), 'utf8');
+  const content = html.match(/<meta name="description" content="([\s\S]*?)">/)[1];
+
+  assert.doesNotMatch(content, /"/, 'an unescaped quote broke out of the content attribute');
+  assert.match(content, /&quot;Lifestyle House&quot;/, 'quotes in the description were not escaped');
+  assert.match(content, /Beauty &amp; Gastro/, 'the ampersand was not escaped');
+  assert.doesNotMatch(content, /&(?!amp;|lt;|gt;|quot;|#39;)/, 'a raw & survived into the attribute');
+
+  await rm(out, { recursive: true, force: true });
 });
 
 test('escapeForScriptBlock leaves the parsed value untouched', () => {

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildJsonLd } from '../scripts/lib/schema.mjs';
-import { loadData } from '../scripts/lib/data.mjs';
+import { loadData, liveBrands } from '../scripts/lib/data.mjs';
 
 const data = {
   holding: {
@@ -38,7 +38,7 @@ test('buildJsonLd produces valid JSON', () => {
 
 test('the graph holds the organisation plus one node per live brand', () => {
   const graph = JSON.parse(buildJsonLd(data))['@graph'];
-  assert.equal(graph.length, 3);
+  assert.equal(graph.length, liveBrands(data).length + 1);
   assert.equal(graph[0]['@type'], 'Organization');
 });
 
@@ -86,8 +86,76 @@ test('the organisation exposes contact details and social profile', () => {
   assert.deepEqual(org.sameAs, ['https://facebook.test/x']);
 });
 
+// Derived, not a magic number: adding a fourth brand to data/brands.json
+// must not require editing this test — that would contradict the whole point
+// of the data-driven build.
 test('the real data produces a graph without draft entries', async () => {
   const real = await loadData('data');
   const graph = JSON.parse(buildJsonLd(real))['@graph'];
-  assert.equal(graph.length, 4);
+  assert.equal(graph.length, liveBrands(real).length + 1);
+  for (const brand of real.brands.filter((b) => b.status !== 'live')) {
+    assert.ok(
+      !graph.some((n) => n.name === brand.name),
+      `draft brand ${brand.name} reached the graph`,
+    );
+  }
+});
+
+// The site is planned for 13 countries. The brand address used to be the only
+// place where the country came out of the data at all, and a mutation that
+// hardcoded 'CH' there stayed green because every fixture location was Swiss.
+test('a brand address takes its country from the location, not a fixed CH', () => {
+  const abroad = {
+    ...data,
+    locations: [{
+      slug: 'wien', city: 'Wien', country: 'AT', countryName: 'Österreich',
+      address: ['Kärntner Strasse 1', '1010 Wien'], status: 'open',
+      brands: [{ brand: 'ink', companyId: 'c1' }],
+    }],
+  };
+  const ink = JSON.parse(buildJsonLd(abroad))['@graph'].find((n) => n.name === 'Riverside Ink');
+  assert.equal(ink.address.addressCountry, 'AT');
+  assert.equal(ink.address.addressLocality, 'Wien');
+});
+
+// Dropping the status filter on the brand address stayed green because the
+// open location happened to come first in the fixture. Here the planned one
+// comes first, so the filter is the only thing that can produce the right
+// answer.
+test('a planned location never becomes the brand address', () => {
+  const plannedFirst = {
+    ...data,
+    locations: [
+      {
+        slug: 'london', city: 'London', country: 'GB', countryName: 'Vereinigtes Königreich',
+        address: ['X 1', 'London'], status: 'planned',
+        brands: [{ brand: 'ink', companyId: 'c3' }],
+      },
+      {
+        slug: 'st-margrethen', city: 'St. Margrethen', country: 'CH', countryName: 'Schweiz',
+        address: ['Grenzstrasse 25', '9430 St. Margrethen'], status: 'open',
+        brands: [{ brand: 'ink', companyId: 'c1' }],
+      },
+    ],
+  };
+  const json = buildJsonLd(plannedFirst);
+  const ink = JSON.parse(json)['@graph'].find((n) => n.name === 'Riverside Ink');
+  assert.equal(ink.address.addressLocality, 'St. Margrethen');
+  assert.equal(ink.address.addressCountry, 'CH');
+  assert.doesNotMatch(json, /London/, 'a planned location leaked into the graph');
+});
+
+// A brand whose only location is still planned must carry no address at all
+// rather than advertising a place that does not exist yet.
+test('a brand with only planned locations gets no address', () => {
+  const onlyPlanned = {
+    ...data,
+    locations: [{
+      slug: 'london', city: 'London', country: 'GB', countryName: 'Vereinigtes Königreich',
+      address: ['X 1', 'London'], status: 'planned',
+      brands: [{ brand: 'ink', companyId: 'c3' }],
+    }],
+  };
+  const ink = JSON.parse(buildJsonLd(onlyPlanned))['@graph'].find((n) => n.name === 'Riverside Ink');
+  assert.equal(ink.address, undefined);
 });
