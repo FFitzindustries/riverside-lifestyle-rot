@@ -2,6 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { renderHoldingBlock, renderCompanyTable, renderLiabilitySection } from '../scripts/lib/legal.mjs';
 import { loadData } from '../scripts/lib/data.mjs';
+import { escapeHtml } from '../scripts/lib/render.mjs';
+
+// Helper function to extract table rows, ensuring we cut at row boundaries
+function extractTableRows(html) {
+  const rows = html.split('</tr>').filter(r => r.trim());
+  return rows.map(r => r.substring(r.indexOf('<tr'))).filter(r => r.length > 0);
+}
 
 const base = {
   holding: {
@@ -73,13 +80,24 @@ test('the company table has one row per company', () => {
 
 test('each row names the brands the company operates', () => {
   const html = renderCompanyTable(base);
-  assert.match(html, /A GmbH[\s\S]*Riverside Ink/);
-  assert.match(html, /B GmbH[\s\S]*Riverside Gastro/);
+  const rows = extractTableRows(html);
+  // Row 0 is header; row 1 is c1 (A GmbH), row 2 is c2 (B GmbH)
+  assert.match(rows[1], /A GmbH/);
+  assert.match(rows[1], /Riverside Ink/);
+  assert.match(rows[2], /B GmbH/);
+  assert.match(rows[2], /Riverside Gastro/);
+  // Verify no cross-contamination
+  assert.doesNotMatch(rows[1], /Riverside Gastro/);
+  assert.doesNotMatch(rows[2], /Riverside Ink/);
 });
 
 test('an empty HR number does not render an empty label', () => {
   const html = renderCompanyTable(base);
-  assert.doesNotMatch(html, /CH-1[\s\S]{0,40}HR-Nr\.:\s*</);
+  const rows = extractTableRows(html);
+  // Row 1 is c1 (A GmbH with hrNumber 'CH-1') → must contain "HR-Nr."
+  assert.match(rows[1], /HR-Nr\./);
+  // Row 2 is c2 (B GmbH with empty hrNumber) → must not contain "HR-Nr."
+  assert.doesNotMatch(rows[2], /HR-Nr\./);
 });
 
 test('the liability section names the holding and disclaims operations', () => {
@@ -93,5 +111,51 @@ test('real data renders every company', async () => {
   const html = renderCompanyTable(data);
   for (const c of data.companies) {
     assert.match(html, new RegExp(c.uid.replace(/\./g, '\\.')));
+  }
+});
+
+test('real data maps brands correctly to companies', async () => {
+  const data = await loadData('data');
+  const html = renderCompanyTable(data);
+  const rows = extractTableRows(html);
+
+  // For each company, find its row and verify its brands are correct
+  for (const company of data.companies) {
+    // Find the row with this company's name (escaped)
+    const companyNameEscaped = escapeHtml(company.name);
+    const companyRow = rows.find(row => row.includes(companyNameEscaped));
+    assert.ok(companyRow, `Row for company ${company.name} should exist`);
+
+    // Extract the third <td> which contains "Betreibt" (brands and cities)
+    const tdMatches = companyRow.match(/<td>[\s\S]*?<\/td>/g);
+    const brandCell = tdMatches && tdMatches[2] ? tdMatches[2] : '';
+
+    // Collect which brands this company should operate
+    const expectedBrands = new Set();
+    for (const location of data.locations || []) {
+      for (const entry of location.brands || []) {
+        if (entry.companyId === company.id) {
+          const brand = (data.brands || []).find(b => b.slug === entry.brand);
+          if (brand) expectedBrands.add(brand.name);
+        }
+      }
+    }
+
+    // Verify the brand cell contains all expected brands
+    for (const brand of expectedBrands) {
+      const brandEscaped = escapeHtml(brand);
+      assert.match(brandCell, new RegExp(brandEscaped),
+        `Company ${company.name} must operate brand ${brand}`);
+    }
+
+    // Verify no brands NOT assigned to this company appear in the brand cell
+    for (const brand of data.brands || []) {
+      const isAssignedToThisCompany = Array.from(expectedBrands).some(b => b === brand.name);
+      if (!isAssignedToThisCompany) {
+        const brandEscaped = escapeHtml(brand.name);
+        assert.doesNotMatch(brandCell, new RegExp(brandEscaped),
+          `Company ${company.name} must not operate brand ${brand.name}`);
+      }
+    }
   }
 });
