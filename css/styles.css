@@ -443,6 +443,11 @@ a{color:inherit;text-decoration:none}
 }
 
 /* ===================== STANDORTLISTE ===================== */
+/* Gleiche Breite, gleiche Zentrierung und gleiches Padding wie .loc-groups,
+   damit die Überschrift im selben Content-Raster steht wie die Liste
+   darunter und nicht am Viewport-Rand klebt. */
+.loc-title{max-width:1280px;margin:56px auto 0;padding:0 44px;font-family:var(--serif);font-size:26px;font-weight:500}
+.loc-title + .loc-groups{margin-top:24px}
 .loc-groups{max-width:1280px;margin:56px auto 0;padding:0 44px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:40px}
 .loc-country{font-family:var(--serif);font-size:22px;font-weight:500;margin-bottom:16px}
 .loc-list{list-style:none;display:grid;gap:18px}
@@ -450,7 +455,7 @@ a{color:inherit;text-decoration:none}
 .loc__city{font-size:15px;font-weight:600;letter-spacing:.02em}
 .loc__addr,.loc__brands{font-size:13px;color:var(--muted)}
 .loc__brands{letter-spacing:.06em;text-transform:uppercase;font-size:11px}
-@media(max-width:560px){.loc-groups{padding:0 22px;gap:28px}}
+@media(max-width:560px){.loc-title,.loc-groups{padding:0 22px}.loc-groups{gap:28px}}
 
 /* ===================== RECHTSSEITEN ===================== */
 .legal-table{width:100%;border-collapse:collapse;margin:22px 0;font-size:14px}
