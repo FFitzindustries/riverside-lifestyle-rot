@@ -110,6 +110,11 @@ export async function build({
       ...common,
       title: `Datenschutz — ${siteName}`,
       mail: escapeHtml(holding.mail),
+      // The controller named in the privacy statement is the same legal
+      // entity the impressum renders from holding.json. Keeping it a literal
+      // in the template would let the two drift apart after a move.
+      holdingName: escapeHtml(holding.name),
+      holdingAddress: holding.address.map((l) => escapeHtml(l)).join(', '),
     }],
   ];
 

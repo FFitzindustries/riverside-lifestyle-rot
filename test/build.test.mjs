@@ -5,6 +5,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { build, countUnfinished } from '../scripts/build.mjs';
 
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 // copyStatic bleibt aus, damit nicht jeder Testfall 2,6 MB Video kopiert.
 async function buildToTmp(opts = {}) {
   const out = await mkdtemp(join(tmpdir(), 'rl-build-'));
@@ -84,11 +86,30 @@ test('agb and datenschutz document exactly their known open legal placeholders',
   const agb = await readFile(join(out, 'agb.html'), 'utf8');
   const datenschutz = await readFile(join(out, 'datenschutz.html'), 'utf8');
   assert.equal(countUnfinished(agb), 6, 'agb.html open-placeholder count changed — update this test deliberately');
+  // Datenschutz went from two to one: the "add Google Analytics here later"
+  // note was an instruction to the operator, not an open business decision,
+  // and was dropped rather than resolved. What remains is the hosting
+  // provider plus its log retention period.
   assert.equal(
     countUnfinished(datenschutz),
-    2,
+    1,
     'datenschutz.html open-placeholder count changed — update this test deliberately',
   );
+  await rm(out, { recursive: true, force: true });
+});
+
+// The controller section used to repeat the holding address as a literal,
+// so a move would have updated the impressum and left the privacy statement
+// naming the old seat. Both must now come from holding.json.
+test('the privacy statement names the controller from holding.json', async () => {
+  const { out } = await buildToTmp();
+  const html = await readFile(join(out, 'datenschutz.html'), 'utf8');
+  const holding = JSON.parse(await readFile('data/holding.json', 'utf8'));
+  const controller = html.match(/<h2>1\. Verantwortliche Stelle<\/h2>\s*<p>([\s\S]*?)<\/p>/)[1];
+  assert.match(controller, new RegExp(escapeRe(holding.name)));
+  for (const line of holding.address) {
+    assert.match(controller, new RegExp(escapeRe(line)), `address line "${line}" missing`);
+  }
   await rm(out, { recursive: true, force: true });
 });
 
