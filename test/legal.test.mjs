@@ -119,42 +119,43 @@ test('real data maps brands correctly to companies', async () => {
   const html = renderCompanyTable(data);
   const rows = extractTableRows(html);
 
-  // For each company, find its row and verify its brands are correct
-  for (const company of data.companies) {
-    // Find the row with this company's name (escaped)
+  // Hardcoded oracle: which brands each company should operate
+  // This is based on the actual business structure (Handelsregister), not derived from data/locations.json
+  // If this changes, it indicates a data error that must be corrected in the source
+  const brandOracle = {
+    'ink-stma': ['Riverside Ink', 'Riverside Beauty'],    // ink + beauty at St. Margrethen
+    'ink-stg': ['Riverside Ink'],                          // ink at St. Gallen only
+    'ink-gastro': ['Riverside Gastro'],                    // gastro at St. Margrethen (separate company)
+  };
+
+  // Verify each company's brands against the oracle
+  for (const [companyId, expectedBrands] of Object.entries(brandOracle)) {
+    const company = data.companies.find(c => c.id === companyId);
+    assert.ok(company, `Company ${companyId} should exist in data`);
+
+    // Find the row for this company (identify by company name)
     const companyNameEscaped = escapeHtml(company.name);
     const companyRow = rows.find(row => row.includes(companyNameEscaped));
-    assert.ok(companyRow, `Row for company ${company.name} should exist`);
+    assert.ok(companyRow, `Row for company ${company.name} should exist in table`);
 
     // Extract the third <td> which contains "Betreibt" (brands and cities)
     const tdMatches = companyRow.match(/<td>[\s\S]*?<\/td>/g);
     const brandCell = tdMatches && tdMatches[2] ? tdMatches[2] : '';
 
-    // Collect which brands this company should operate
-    const expectedBrands = new Set();
-    for (const location of data.locations || []) {
-      for (const entry of location.brands || []) {
-        if (entry.companyId === company.id) {
-          const brand = (data.brands || []).find(b => b.slug === entry.brand);
-          if (brand) expectedBrands.add(brand.name);
-        }
-      }
-    }
-
     // Verify the brand cell contains all expected brands
     for (const brand of expectedBrands) {
       const brandEscaped = escapeHtml(brand);
       assert.match(brandCell, new RegExp(brandEscaped),
-        `Company ${company.name} must operate brand ${brand}`);
+        `Company ${company.name} (${companyId}) must operate brand ${brand}`);
     }
 
-    // Verify no brands NOT assigned to this company appear in the brand cell
+    // Verify no brands NOT in the oracle appear in this company's brand cell
     for (const brand of data.brands || []) {
-      const isAssignedToThisCompany = Array.from(expectedBrands).some(b => b === brand.name);
-      if (!isAssignedToThisCompany) {
+      const isExpectedForThisCompany = expectedBrands.includes(brand.name);
+      if (!isExpectedForThisCompany) {
         const brandEscaped = escapeHtml(brand.name);
         assert.doesNotMatch(brandCell, new RegExp(brandEscaped),
-          `Company ${company.name} must not operate brand ${brand.name}`);
+          `Company ${company.name} (${companyId}) must not operate brand ${brand.name}`);
       }
     }
   }
