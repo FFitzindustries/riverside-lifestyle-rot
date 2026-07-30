@@ -1,6 +1,6 @@
 import { readFile, writeFile, mkdir, cp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
-import { loadData, validate } from './lib/data.mjs';
+import { loadData, validate, liveBrands } from './lib/data.mjs';
 import {
   renderTemplate, escapeHtml, attr,
 } from './lib/render.mjs';
@@ -90,6 +90,34 @@ export async function build({
     const template = await readFile(join(srcDir, tmpl), 'utf8');
     await writeFile(join(outDir, target), renderTemplate(template, vars), 'utf8');
     written.push(target);
+  }
+
+  const brandTemplate = await readFile(join(srcDir, 'brand.tmpl.html'), 'utf8');
+  for (const brand of liveBrands(data).filter((b) => !b.url)) {
+    const dir = join(outDir, brand.slug);
+    await mkdir(dir, { recursive: true });
+    const locationsForBrand = {
+      ...data,
+      locations: data.locations.filter((l) => (l.brands ?? []).some((e) => e.brand === brand.slug)),
+    };
+    const html = renderTemplate(brandTemplate, {
+      ...common,
+      title: `${brand.name} — ${content.siteName}`,
+      metaDescription: brand.description,
+      navLinks: renderNavLinks(data),
+      brandName: escapeHtml(brand.name),
+      brandSub: escapeHtml(brand.sub),
+      brandDescription: escapeHtml(brand.description),
+      locationsTitle: content.worldwide.locationsTitle,
+      locations: renderLocationList(locationsForBrand),
+      contactTitle: content.contact.title,
+      contactAddress: holding.address.map((l) => escapeHtml(l)).join('<br>'),
+      mail: escapeHtml(holding.mail),
+      phone: escapeHtml(holding.phone),
+      phoneHref: holding.phone.replace(/\s/g, ''),
+    });
+    await writeFile(join(dir, 'index.html'), html, 'utf8');
+    written.push(`${brand.slug}/index.html`);
   }
 
   await writeFile(join(outDir, 'sitemap.xml'), sitemap(holding, written), 'utf8');

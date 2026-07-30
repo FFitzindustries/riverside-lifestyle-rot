@@ -101,3 +101,30 @@ test('content text is escaped but intentional markup fields still render as real
   assert.match(html, /<em>Lifestyle<\/em>/, 'hero headline lost its real <em> element');
   await rm(out, { recursive: true, force: true });
 });
+
+test('a brand without its own domain gets a hub page', async () => {
+  const { out, result } = await buildToTmp();
+  assert.ok(result.written.includes('gastro/index.html'));
+  const html = await readFile(join(out, 'gastro/index.html'), 'utf8');
+  assert.match(html, /Riverside Gastro/);
+  assert.match(html, /Grenzstrasse 25/);
+  await rm(out, { recursive: true, force: true });
+});
+
+test('a brand with its own domain gets no hub page', async () => {
+  const { result } = await buildToTmp();
+  assert.ok(!result.written.includes('ink/index.html'));
+  assert.ok(!result.written.includes('beauty/index.html'));
+});
+
+test('the panel of a domainless brand points at its hub page', async () => {
+  const { out } = await buildToTmp();
+  const html = await readFile(join(out, 'index.html'), 'utf8');
+  assert.match(html, /href="\/gastro\/" data-brand="gastro"/);
+  await rm(out, { recursive: true, force: true });
+});
+
+test('draft brands get no page at all', async () => {
+  const { result } = await buildToTmp();
+  assert.ok(!result.written.includes('event/index.html'));
+});
