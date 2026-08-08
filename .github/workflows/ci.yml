@@ -1,0 +1,26 @@
+name: CI
+
+# Deployment läuft über Vercel, das direkt auf dieses Repository hört.
+# Hier bleibt nur die Prüfung, damit ein kaputter Stand auffällt, bevor
+# Vercel ihn ausliefert.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run tests
+        run: node --test
+      - name: Build
+        run: node scripts/build.mjs
