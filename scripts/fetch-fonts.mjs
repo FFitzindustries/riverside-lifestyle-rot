@@ -27,7 +27,10 @@ for (const url of urls) {
   const name = basename(new URL(url).pathname);
   const bytes = Buffer.from(await (await fetch(url)).arrayBuffer());
   await writeFile(join(OUT_DIR, name), bytes);
-  local = local.replaceAll(url, `/assets/fonts/${name}`);
+  // Relative to css/fonts.css, not to the site root: the site is served both
+  // from a domain root and from a GitHub Pages project folder, and a root
+  // path silently 404s in the second case.
+  local = local.replaceAll(url, `../assets/fonts/${name}`);
 }
 
 await writeFile(

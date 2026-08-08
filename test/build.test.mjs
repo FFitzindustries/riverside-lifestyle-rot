@@ -96,7 +96,11 @@ test('the local font stylesheet is shipped', async () => {
   const { out } = await buildToTmp({ copyStatic: true });
   const css = await readFile(join(out, 'css/fonts.css'), 'utf8');
   assert.match(css, /@font-face/);
-  assert.match(css, /\/assets\/fonts\//);
+  // Relative, not root-absolute: under a GitHub Pages project path a root
+  // path resolves to the account root and the fonts 404 without any visible
+  // error beyond a fallback typeface.
+  assert.match(css, /url\(\.\.\/assets\/fonts\//);
+  assert.doesNotMatch(css, /url\(\/assets\/fonts\//);
   await rm(out, { recursive: true, force: true });
 });
 
