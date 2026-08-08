@@ -223,8 +223,12 @@ test('build refuses to run on invalid data', async () => {
 
 test('sitemap lists the built pages', async () => {
   const { out } = await buildToTmp();
+  const data = await loadData('data');
   const xml = await readFile(join(out, 'sitemap.xml'), 'utf8');
-  assert.match(xml, /https:\/\/riverside-lifestyle\.com\//);
+  // Taken from the data, not hardcoded: moving the site to another domain is
+  // a one-line data change and must not turn this test red for the wrong
+  // reason.
+  assert.match(xml, new RegExp(escapeRe(`${data.holding.url.replace(/\/$/, '')}/`)));
   assert.match(xml, /impressum\.html/);
   await rm(out, { recursive: true, force: true });
 });
@@ -232,7 +236,8 @@ test('sitemap lists the built pages', async () => {
 test('sitemap shortens every index.html page to its directory URL', async () => {
   const { out } = await buildToTmp();
   const xml = await readFile(join(out, 'sitemap.xml'), 'utf8');
-  assert.match(xml, /<loc>https:\/\/riverside-lifestyle\.com\/gastro\/<\/loc>/);
+  const base = (await loadData('data')).holding.url.replace(/\/$/, '');
+  assert.match(xml, new RegExp(escapeRe(`<loc>${base}/gastro/</loc>`)));
   assert.doesNotMatch(xml, /gastro\/index\.html/);
   await rm(out, { recursive: true, force: true });
 });
