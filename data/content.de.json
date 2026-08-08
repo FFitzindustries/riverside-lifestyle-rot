@@ -1,0 +1,35 @@
+{
+  "lang": "de",
+  "htmlLang": "de-CH",
+  "siteName": "Riverside Lifestyle",
+  "title": "Riverside Lifestyle — Tattoo, Beauty & Gastro",
+  "metaDescription": "Riverside Lifestyle ist die Dachmarke der Riverside Lifestyle Holding AG: Riverside Ink, Riverside Beauty und Riverside Gastro.",
+  "hero": {
+    "kicker": "Riverside Worldwide",
+    "headline": "Drei Welten. Ein <em>Lifestyle</em>."
+  },
+  "worldwide": {
+    "kicker": "Riverside Worldwide",
+    "title": "Von <em>St.&nbsp;Margrethen</em> in die Welt.",
+    "sub": "Drei Welten, ein Lifestyle, weit über die Ostschweiz hinaus.",
+    "locationsTitle": "Unsere Standorte"
+  },
+  "picker": {
+    "planned": "in Vorbereitung",
+    "choose": "Standort wählen →",
+    "allLocations": "Alle Standorte",
+    "byPlace": "Nach Ort",
+    "byBrand": "Nach Marke",
+    "locationsTitle": "Standorte",
+    "locationsIntro": "Alle Standorte der Riverside-Gruppe. Standorte in Vorbereitung sind als solche gekennzeichnet.",
+    "backToOverview": "Zur Übersicht"
+  },
+  "contact": {
+    "title": "Hier findest du uns.",
+    "labelPhone": "Telefon",
+    "labelMail": "E-Mail"
+  },
+  "footer": {
+    "copyright": "© 2026 Riverside Lifestyle"
+  }
+}

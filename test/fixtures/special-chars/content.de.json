@@ -1,0 +1,35 @@
+{
+  "lang": "de",
+  "siteName": "Riverside Lifestyle",
+  "title": "Riverside Lifestyle — Tattoo, Beauty & Gastro",
+  "metaDescription": "Riverside Ink, Beauty & Gastro — das \"Lifestyle House\" der Riverside Lifestyle Holding AG in der Ostschweiz.",
+  "hero": {
+    "kicker": "Riverside Worldwide",
+    "headline": "Drei Welten. Ein <em>Lifestyle</em>."
+  },
+  "worldwide": {
+    "kicker": "Riverside Worldwide",
+    "title": "Von <em>St.&nbsp;Margrethen</em> in die Welt.",
+    "sub": "Drei Welten, ein Lifestyle — weit über die Ostschweiz hinaus.",
+    "locationsTitle": "Unsere Standorte"
+  },
+  "contact": {
+    "title": "Hier findest du uns.",
+    "labelPhone": "Telefon",
+    "labelMail": "E-Mail"
+  },
+  "footer": {
+    "copyright": "© 2026 Riverside Lifestyle"
+  },
+  "htmlLang": "de-CH",
+  "picker": {
+    "planned": "in Vorbereitung",
+    "choose": "Standort wählen →",
+    "allLocations": "Alle Standorte",
+    "byPlace": "Nach Ort",
+    "byBrand": "Nach Marke",
+    "locationsTitle": "Standorte",
+    "locationsIntro": "Alle Standorte der Riverside-Gruppe.",
+    "backToOverview": "Zur Übersicht"
+  }
+}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="<!--{{htmlLang}}-->">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><!--{{title}}--></title>
+<meta name="description" content="<!--{{metaDescription}}-->">
+<link rel="canonical" href="<!--{{canonical}}-->">
+<!--{{hreflang}}-->
+<meta name="theme-color" content="#07080c">
+<link rel="icon" href="<!--{{base}}-->/assets/brand/favicon.png" type="image/png">
+<link rel="stylesheet" href="<!--{{base}}-->/css/fonts.css">
+<link rel="stylesheet" href="<!--{{base}}-->/css/styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a class="brandmark" href="<!--{{base}}-->/"><img class="brandmark__logo" src="<!--{{base}}-->/assets/brand/logo.png" alt="Riverside Lifestyle"></a>
+    <div class="nav-links" id="nav-links">
+<!--{{navLinks}}-->
+      <a href="<!--{{allLocationsHref}}-->"><!--{{allLocationsLabel}}--></a>
+      <span class="lang-switch">
+<!--{{langSwitch}}-->
+      </span>
+    </div>
+    <button class="nav-toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="nav-links">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<header class="brand-hero">
+  <div class="wrap">
+    <span class="kicker">Riverside Lifestyle</span>
+    <h1><!--{{locationsTitle}}--></h1>
+    <p class="brand-desc"><!--{{locationsIntro}}--></p>
+  </div>
+</header>
+
+<section class="brand-locations">
+  <div class="wrap">
+    <div class="loc-groups">
+<!--{{locations}}-->
+    </div>
+  </div>
+</section>
+
+<footer class="legal-bar">
+  <div class="legal-in">
+    <span><!--{{copyright}}--></span>
+    <nav class="legal-links">
+      <a href="<!--{{base}}-->/impressum.html">Impressum</a>
+      <a href="<!--{{base}}-->/agb.html">AGB</a>
+      <a href="<!--{{base}}-->/datenschutz.html">Datenschutz</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="<!--{{base}}-->/js/main.js"></script>
+</body>
+</html>

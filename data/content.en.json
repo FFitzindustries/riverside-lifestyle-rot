@@ -1,0 +1,35 @@
+{
+  "lang": "en",
+  "htmlLang": "en",
+  "siteName": "Riverside Lifestyle",
+  "title": "Riverside Lifestyle — Tattoo, Beauty & Gastro",
+  "metaDescription": "Riverside Lifestyle is the parent brand of Riverside Lifestyle Holding AG: Riverside Ink, Riverside Beauty and Riverside Gastro.",
+  "hero": {
+    "kicker": "Riverside Worldwide",
+    "headline": "Three worlds. One <em>lifestyle</em>."
+  },
+  "worldwide": {
+    "kicker": "Riverside Worldwide",
+    "title": "From <em>St.&nbsp;Margrethen</em> to the world.",
+    "sub": "Three worlds, one lifestyle, far beyond eastern Switzerland.",
+    "locationsTitle": "Our locations"
+  },
+  "picker": {
+    "planned": "opening soon",
+    "choose": "Choose a location →",
+    "allLocations": "All locations",
+    "byPlace": "By place",
+    "byBrand": "By brand",
+    "locationsTitle": "Locations",
+    "locationsIntro": "Every location of the Riverside group. Locations that have not opened yet are marked as such.",
+    "backToOverview": "Back to overview"
+  },
+  "contact": {
+    "title": "Where to find us.",
+    "labelPhone": "Phone",
+    "labelMail": "Email"
+  },
+  "footer": {
+    "copyright": "© 2026 Riverside Lifestyle"
+  }
+}

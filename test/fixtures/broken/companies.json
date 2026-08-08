@@ -1,0 +1,50 @@
+[
+  {
+    "id": "ink-stma",
+    "name": "Riverside Ink St.Margrethen GmbH",
+    "uid": "CHE-208.553.114",
+    "hrNumber": "CH-320.4.095.533-8",
+    "address": [
+      "Grenzstrasse 25",
+      "9430 St. Margrethen",
+      "Schweiz"
+    ],
+    "register": "Handelsregisteramt des Kantons St. Gallen",
+    "mail": "info@riverside-ink.ch",
+    "phone": "+41 76 612 21 22",
+    "country": "ch",
+    "exists": true
+  },
+  {
+    "id": "ink-stg",
+    "name": "Riverside Ink. St. Gallen GmbH",
+    "uid": "CHE-294.845.141",
+    "hrNumber": "",
+    "address": [
+      "Spisergasse 14",
+      "9000 St. Gallen",
+      "Schweiz"
+    ],
+    "register": "Handelsregisteramt des Kantons St. Gallen",
+    "mail": "info@riverside-ink.ch",
+    "phone": "",
+    "country": "ch",
+    "exists": true
+  },
+  {
+    "id": "ink-gastro",
+    "name": "Riverside Ink. Gastro GmbH",
+    "uid": "CHE-289.050.911",
+    "hrNumber": "",
+    "address": [
+      "Grenzstrasse 25",
+      "9430 St. Margrethen",
+      "Schweiz"
+    ],
+    "register": "Handelsregisteramt des Kantons St. Gallen",
+    "mail": "info@riverside-ink.ch",
+    "phone": "",
+    "country": "ch",
+    "exists": true
+  }
+]
