@@ -2,25 +2,47 @@
   {
     "slug": "st-margrethen",
     "city": "St. Margrethen",
-    "country": "CH",
-    "countryName": "Schweiz",
-    "address": ["Grenzstrasse 25", "9430 St. Margrethen"],
+    "country": "ch",
+    "address": [
+      "Grenzstrasse 25",
+      "9430 St. Margrethen"
+    ],
     "status": "open",
     "brands": [
-      { "brand": "ink", "companyId": "ink-stma" },
-      { "brand": "beauty", "companyId": "ink-stma" },
-      { "brand": "gastro", "companyId": "ink-gastro" }
-    ]
+      {
+        "brand": "ink",
+        "companyId": "ink-stma",
+        "url": ""
+      },
+      {
+        "brand": "beauty",
+        "companyId": "ink-stma",
+        "url": ""
+      },
+      {
+        "brand": "gastro",
+        "companyId": "ink-gastro",
+        "url": ""
+      }
+    ],
+    "brandsConfirmed": true
   },
   {
     "slug": "st-gallen",
     "city": "St. Gallen",
-    "country": "CH",
-    "countryName": "Schweiz",
-    "address": ["Spisergasse 14", "9000 St. Gallen"],
+    "country": "ch",
+    "address": [
+      "Spisergasse 14",
+      "9000 St. Gallen"
+    ],
     "status": "open",
     "brands": [
-      { "brand": "ink", "companyId": "ink-stg" }
-    ]
+      {
+        "brand": "ink",
+        "companyId": "ink-stg",
+        "url": ""
+      }
+    ],
+    "brandsConfirmed": true
   }
 ]

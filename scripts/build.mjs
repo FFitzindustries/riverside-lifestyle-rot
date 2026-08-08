@@ -1,15 +1,43 @@
 import { readFile, writeFile, mkdir, cp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
-import { loadData, validate, liveBrands } from './lib/data.mjs';
+import {
+  loadData, validate, warnings, visibleBrands, locationsForBrand,
+} from './lib/data.mjs';
 import {
   renderTemplate, escapeHtml, attr,
 } from './lib/render.mjs';
-import { renderNavLinks, renderPanels, renderLocationList, panelsClass } from './lib/fragments.mjs';
+import {
+  renderNavLinks, renderPanels, renderOpenLocations, renderBrandLocations,
+  renderLocationsByPlace, panelsClass,
+} from './lib/fragments.mjs';
 import { buildJsonLd } from './lib/schema.mjs';
 import { renderHoldingBlock, renderCompanyTable, renderLiabilitySection } from './lib/legal.mjs';
 
 const STATIC_DIRS = ['assets', 'css', 'js'];
 const STATIC_FILES = ['robots.txt', 'llms.txt', 'favicon.svg', '.nojekyll'];
+
+/**
+ * German is the site root, English lives under /en/.
+ *
+ * The legal pages stay German-only on purpose: an impressum, terms and a
+ * privacy statement are binding texts under Swiss law, and a translation that
+ * nobody has legally reviewed would be worse than a German original that a
+ * foreign visitor can machine-translate.
+ */
+const LANGUAGES = [
+  { code: 'de', prefix: '', locationsSlug: 'standorte', legal: true },
+  { code: 'en', prefix: 'en/', locationsSlug: 'locations', legal: false },
+];
+
+/**
+ * Prefix for every internal link.
+ *
+ * The site is served both from its own domain (empty base) and from a GitHub
+ * Pages project path (/repo-name). Hard-coded absolute paths break in the
+ * second case, relative paths break as soon as a page moves into a
+ * subdirectory. A single configurable base solves both.
+ */
+const BASE = (process.env.BASE_PATH ?? '').replace(/\/$/, '');
 
 // Every page written as .../index.html is served at its directory, so the
 // sitemap should point there too — not at the literal file — to avoid two
@@ -38,23 +66,17 @@ ${urls}
  * entities there, it only looks for the closing tag. JSON.stringify does not
  * escape "<", so a brand name containing "</script>" would close the block
  * early and everything after it would be parsed as HTML. Rewriting every "<"
- * as its JSON unicode escape (see below) keeps the document semantically
- * identical — JSON.parse turns it back into "<" — while making an early
- * close impossible. An HTML entity would not work here: it does not get
- * decoded inside a script block and would survive into the parsed value as
- * the literal text "&lt;".
+ * as its JSON unicode escape keeps the document semantically identical while
+ * making an early close impossible.
  */
 export function escapeForScriptBlock(json) {
   return json.replaceAll('<', '\\u003C');
 }
 
 // Legal pages (AGB, Datenschutz) intentionally still carry a few open
-// business decisions that only the client can supply — a guessed deposit
-// amount or court of jurisdiction would be worse than an honest gap. Every
-// such gap is marked in the templates with class="todo". The bracket
-// pattern below is a second, independent check: it catches a future
-// placeholder that uses the same "[free text]" convention but forgets the
-// class, without depending on a literal list of known-bad strings.
+// business decisions that only the client can supply. Every such gap is
+// marked in the templates with class="todo". The bracket pattern below is a
+// second, independent check.
 const TODO_SPAN = /<span class="todo">[\s\S]*?<\/span>/g;
 const BRACKET_PLACEHOLDER = /\[[^\]["{}:]*\p{L}[^\]["{}:]*\]/gu;
 
@@ -66,120 +88,181 @@ export function countUnfinished(html) {
   return spans.length + brackets.length;
 }
 
+/** The path a page is written to, relative to the output directory. */
+function pagePath(lang, kind, slug) {
+  if (kind === 'index') return `${lang.prefix}index.html`;
+  if (kind === 'locations') return `${lang.prefix}${lang.locationsSlug}/index.html`;
+  return `${lang.prefix}${slug}/index.html`;
+}
+
+/** The URL a page is reachable at, including the configured base path. */
+function pageUrl(lang, kind, slug) {
+  const path = pagePath(lang, kind, slug).replace(/index\.html$/, '');
+  return `${BASE}/${path}`;
+}
+
+/**
+ * The <link rel="alternate"> block plus the visible language switch.
+ *
+ * Both languages describe the same page, so hreflang has to point at the
+ * counterpart of *this* page, not at the other language's home page. Sending
+ * an English visitor from a brand page to the German front door is the most
+ * common way this goes wrong.
+ */
+function languageLinks(kind, slug, siteBase) {
+  const alt = LANGUAGES
+    .map((l) => `<link rel="alternate" hreflang="${l.code}" href="${siteBase}${pageUrl(l, kind, slug)}">`)
+    .join('\n');
+  const xDefault = `<link rel="alternate" hreflang="x-default" href="${siteBase}${pageUrl(LANGUAGES[0], kind, slug)}">`;
+  return `${alt}\n${xDefault}`;
+}
+
+function languageSwitch(current, kind, slug) {
+  return LANGUAGES.map((l) => {
+    const label = l.code.toUpperCase();
+    if (l.code === current.code) {
+      return `      <span class="lang-switch__current" aria-current="true">${label}</span>`;
+    }
+    return `      <a class="lang-switch__link" href="${attr(pageUrl(l, kind, slug))}">${label}</a>`;
+  }).join('\n');
+}
+
 /** Reads data and templates, writes the finished site to outDir. */
 export async function build({
   dataDir = 'data', srcDir = 'src', outDir = 'dist', copyStatic = true,
 } = {}) {
-  const data = await loadData(dataDir);
-  const errors = validate(data);
+  const baseData = await loadData(dataDir, 'de');
+  const errors = validate(baseData);
   if (errors.length) {
     throw new Error(`data validation failed:\n  ${errors.join('\n  ')}`);
   }
 
-  const { holding, content } = data;
-  // Escaped once here so every page title below can interpolate it without
-  // re-escaping (and without double-escaping) the site name.
-  const siteName = escapeHtml(content.siteName);
-  const common = {
-    siteName,
-    copyright: escapeHtml(content.footer.copyright),
-  };
-
-  const indexVars = {
-    ...common,
-    title: escapeHtml(content.title),
-    metaDescription: attr(content.metaDescription),
-    navLinks: renderNavLinks(data),
-    panels: renderPanels(data),
-    panelsClass: panelsClass(data),
-    heroKicker: escapeHtml(content.hero.kicker),
-    // hero.headline and worldwide.title intentionally carry raw markup
-    // (an <em> emphasis) and must not be escaped, or the tag would show
-    // up as visible text instead of rendering.
-    heroHeadline: content.hero.headline,
-    wwKicker: escapeHtml(content.worldwide.kicker),
-    wwTitle: content.worldwide.title,
-    wwSub: escapeHtml(content.worldwide.sub),
-    locationsTitle: escapeHtml(content.worldwide.locationsTitle),
-    locations: renderLocationList(data),
-    contactTitle: escapeHtml(content.contact.title),
-    contactAddress: holding.address.map((l) => escapeHtml(l)).join('<br>'),
-    labelPhone: escapeHtml(content.contact.labelPhone),
-    labelMail: escapeHtml(content.contact.labelMail),
-    phone: escapeHtml(holding.phone),
-    phoneHref: holding.phone.replace(/\s/g, ''),
-    mail: escapeHtml(holding.mail),
-    facebookUrl: holding.social.facebook,
-    jsonLd: escapeForScriptBlock(buildJsonLd(data)),
-  };
-
-  const pages = [
-    ['index.html', 'index.tmpl.html', indexVars],
-    ['impressum.html', 'impressum.tmpl.html', {
-      ...common,
-      title: `Impressum — ${siteName}`,
-      holdingBlock: renderHoldingBlock(data),
-      liabilitySection: renderLiabilitySection(data),
-      companyTable: renderCompanyTable(data),
-    }],
-    ['agb.html', 'agb.tmpl.html', { ...common, title: `AGB — ${siteName}` }],
-    ['datenschutz.html', 'datenschutz.tmpl.html', {
-      ...common,
-      title: `Datenschutz — ${siteName}`,
-      mail: escapeHtml(holding.mail),
-      // The controller named in the privacy statement is the same legal
-      // entity the impressum renders from holding.json. Keeping it a literal
-      // in the template would let the two drift apart after a move.
-      holdingName: escapeHtml(holding.name),
-      holdingAddress: holding.address.map((l) => escapeHtml(l)).join(', '),
-    }],
-  ];
-
+  const siteBase = baseData.holding.url.replace(/\/$/, '');
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
 
   const written = [];
   const unfinished = [];
-  for (const [target, tmpl, vars] of pages) {
-    const template = await readFile(join(srcDir, tmpl), 'utf8');
-    const html = renderTemplate(template, vars);
+
+  const write = async (target, html) => {
+    const dir = target.includes('/') ? join(outDir, target.slice(0, target.lastIndexOf('/'))) : outDir;
+    await mkdir(dir, { recursive: true });
     await writeFile(join(outDir, target), html, 'utf8');
     written.push(target);
     const count = countUnfinished(html);
     if (count > 0) unfinished.push({ page: target, count });
-  }
+  };
 
-  const brandTemplate = await readFile(join(srcDir, 'brand.tmpl.html'), 'utf8');
-  for (const brand of liveBrands(data).filter((b) => !b.url)) {
-    const dir = join(outDir, brand.slug);
-    await mkdir(dir, { recursive: true });
-    const locationsForBrand = {
-      ...data,
-      locations: data.locations.filter((l) => (l.brands ?? []).some((e) => e.brand === brand.slug)),
+  const templates = Object.fromEntries(await Promise.all(
+    ['index', 'brand', 'locations', 'impressum', 'agb', 'datenschutz'].map(async (name) => [
+      name, await readFile(join(srcDir, `${name}.tmpl.html`), 'utf8'),
+    ]),
+  ));
+
+  for (const lang of LANGUAGES) {
+    const data = await loadData(dataDir, lang.code);
+    const { holding, content } = data;
+    const siteName = escapeHtml(content.siteName);
+
+    const common = {
+      base: BASE,
+      siteName,
+      htmlLang: content.htmlLang,
+      copyright: escapeHtml(content.footer.copyright),
+      navLinks: renderNavLinks(data, `${BASE}/${lang.prefix}`.replace(/\/$/, '')),
+      allLocationsLabel: escapeHtml(content.picker.allLocations),
+      allLocationsHref: attr(pageUrl(lang, 'locations')),
     };
-    const html = renderTemplate(brandTemplate, {
+
+    await write(pagePath(lang, 'index'), renderTemplate(templates.index, {
       ...common,
-      title: `${escapeHtml(brand.name)} — ${siteName}`,
-      metaDescription: attr(brand.description),
-      navLinks: renderNavLinks(data),
-      brandName: escapeHtml(brand.name),
-      brandSub: escapeHtml(brand.sub),
-      brandDescription: escapeHtml(brand.description),
+      title: escapeHtml(content.title),
+      metaDescription: attr(content.metaDescription),
+      canonical: `${siteBase}${pageUrl(lang, 'index')}`,
+      ogImage: `${siteBase}${BASE}/assets/poster/poster.jpg`,
+      ogLocale: lang.code === 'de' ? 'de_CH' : 'en_US',
+      hreflang: languageLinks('index', null, siteBase),
+      langSwitch: languageSwitch(lang, 'index', null),
+      panels: renderPanels(data, `${BASE}/${lang.prefix}`.replace(/\/$/, ''), BASE),
+      panelsClass: panelsClass(data),
+      heroKicker: escapeHtml(content.hero.kicker),
+      // hero.headline and worldwide.title intentionally carry raw markup
+      // (an <em> emphasis) and must not be escaped.
+      heroHeadline: content.hero.headline,
+      wwKicker: escapeHtml(content.worldwide.kicker),
+      wwTitle: content.worldwide.title,
+      wwSub: escapeHtml(content.worldwide.sub),
       locationsTitle: escapeHtml(content.worldwide.locationsTitle),
-      locations: renderLocationList(locationsForBrand),
+      locations: renderOpenLocations(data, lang.code),
       contactTitle: escapeHtml(content.contact.title),
       contactAddress: holding.address.map((l) => escapeHtml(l)).join('<br>'),
-      mail: escapeHtml(holding.mail),
+      labelPhone: escapeHtml(content.contact.labelPhone),
+      labelMail: escapeHtml(content.contact.labelMail),
       phone: escapeHtml(holding.phone),
       phoneHref: holding.phone.replace(/\s/g, ''),
-    });
-    await writeFile(join(dir, 'index.html'), html, 'utf8');
-    written.push(`${brand.slug}/index.html`);
-    const count = countUnfinished(html);
-    if (count > 0) unfinished.push({ page: `${brand.slug}/index.html`, count });
+      mail: escapeHtml(holding.mail),
+      facebookUrl: holding.social.facebook,
+      jsonLd: escapeForScriptBlock(buildJsonLd(data, lang.code)),
+    }));
+
+    // A brand only gets a page when it has somewhere to send people. Event has
+    // no location yet, so its panel stays a tile rather than a dead link.
+    for (const brand of visibleBrands(data)) {
+      if (!locationsForBrand(data, brand.slug).length) continue;
+      await write(pagePath(lang, 'brand', brand.slug), renderTemplate(templates.brand, {
+        ...common,
+        title: `${escapeHtml(brand.name)} — ${siteName}`,
+        metaDescription: attr(brand.description),
+        canonical: `${siteBase}${pageUrl(lang, 'brand', brand.slug)}`,
+        hreflang: languageLinks('brand', brand.slug, siteBase),
+        langSwitch: languageSwitch(lang, 'brand', brand.slug),
+        brandName: escapeHtml(brand.name),
+        brandSub: escapeHtml(brand.sub),
+        brandDescription: escapeHtml(brand.description),
+        locationsTitle: escapeHtml(content.worldwide.locationsTitle),
+        locations: renderBrandLocations(data, brand.slug, lang.code),
+        contactTitle: escapeHtml(content.contact.title),
+        contactAddress: holding.address.map((l) => escapeHtml(l)).join('<br>'),
+        mail: escapeHtml(holding.mail),
+        phone: escapeHtml(holding.phone),
+        phoneHref: holding.phone.replace(/\s/g, ''),
+      }));
+    }
+
+    await write(pagePath(lang, 'locations'), renderTemplate(templates.locations, {
+      ...common,
+      title: `${escapeHtml(content.picker.locationsTitle)} — ${siteName}`,
+      metaDescription: attr(content.picker.locationsIntro),
+      canonical: `${siteBase}${pageUrl(lang, 'locations')}`,
+      hreflang: languageLinks('locations', null, siteBase),
+      langSwitch: languageSwitch(lang, 'locations', null),
+      locationsTitle: escapeHtml(content.picker.locationsTitle),
+      locationsIntro: escapeHtml(content.picker.locationsIntro),
+      locations: renderLocationsByPlace(data, lang.code),
+    }));
+
+    if (!lang.legal) continue;
+
+    await write('impressum.html', renderTemplate(templates.impressum, {
+      ...common,
+      title: `Impressum — ${siteName}`,
+      holdingBlock: renderHoldingBlock(data),
+      liabilitySection: renderLiabilitySection(data),
+      companyTable: renderCompanyTable(data, lang.code),
+    }));
+    await write('agb.html', renderTemplate(templates.agb, {
+      ...common, title: `AGB — ${siteName}`,
+    }));
+    await write('datenschutz.html', renderTemplate(templates.datenschutz, {
+      ...common,
+      title: `Datenschutz — ${siteName}`,
+      mail: escapeHtml(holding.mail),
+      holdingName: escapeHtml(holding.name),
+      holdingAddress: holding.address.map((l) => escapeHtml(l)).join(', '),
+    }));
   }
 
-  await writeFile(join(outDir, 'sitemap.xml'), sitemap(holding, written), 'utf8');
+  await writeFile(join(outDir, 'sitemap.xml'), sitemap(baseData.holding, written), 'utf8');
   written.push('sitemap.xml');
 
   if (copyStatic) {
@@ -191,7 +274,7 @@ export async function build({
     }
   }
 
-  return { written, unfinished };
+  return { written, unfinished, warnings: warnings(baseData) };
 }
 
 // Direct invocation: node scripts/build.mjs
@@ -199,14 +282,18 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   build()
     .then((r) => {
       console.log(`built ${r.written.length} pages into dist/`);
-      // The build succeeds regardless — these are business decisions only
-      // the client can make, not bugs to fail the build over. But they must
-      // stay visible, or they end up shipped by an unattended deploy.
+      // These do not fail the build: they are either business decisions only
+      // the client can make, or gaps that live on someone else's website. But
+      // they must stay visible, or an unattended deploy ships them silently.
       if (r.unfinished.length) {
         console.warn(`WARNING: ${r.unfinished.length} page(s) still have open legal placeholders:`);
         for (const { page, count } of r.unfinished) {
           console.warn(`  - ${page}: ${count} open item(s)`);
         }
+      }
+      if (r.warnings.length) {
+        console.warn(`WARNING: ${r.warnings.length} data issue(s):`);
+        for (const w of r.warnings) console.warn(`  - ${w}`);
       }
     })
     .catch((err) => {

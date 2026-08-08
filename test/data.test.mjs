@@ -1,13 +1,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadData, validate, liveBrands, companyById } from '../scripts/lib/data.mjs';
+import {
+  loadData, validate, warnings, liveBrands, visibleBrands, companyById,
+  localized, countriesForBrand, locationHref, unconfirmedLocations,
+} from '../scripts/lib/data.mjs';
 
-test('loadData reads all five files', async () => {
+test('loadData reads every data file', async () => {
   const data = await loadData('data');
   assert.equal(data.holding.uid, 'CHE-405.114.788');
   assert.ok(Array.isArray(data.brands));
   assert.ok(Array.isArray(data.locations));
   assert.ok(Array.isArray(data.companies));
+  assert.ok(Array.isArray(data.countries));
   assert.equal(data.content.lang, 'de');
 });
 
@@ -20,9 +24,10 @@ test('validate rejects a brand-location entry with unknown companyId', () => {
   const data = {
     holding: { name: 'H' },
     brands: [{ slug: 'ink', status: 'live', order: 1 }],
+    countries: [{ code: 'ch', name: 'CH', order: 1 }],
     companies: [{ id: 'ink-stma' }],
     locations: [{
-      slug: 'x', city: 'X', status: 'open',
+      slug: 'x', city: 'X', country: 'ch', status: 'open', address: ['a'],
       brands: [{ brand: 'ink', companyId: 'does-not-exist' }],
     }],
     content: {},
@@ -36,9 +41,10 @@ test('validate rejects a brand-location entry with unknown brand', () => {
   const data = {
     holding: { name: 'H' },
     brands: [{ slug: 'ink', status: 'live', order: 1 }],
+    countries: [{ code: 'ch', name: 'CH', order: 1 }],
     companies: [{ id: 'c1' }],
     locations: [{
-      slug: 'x', city: 'X', status: 'open',
+      slug: 'x', city: 'X', country: 'ch', status: 'open', address: ['a'],
       brands: [{ brand: 'nope', companyId: 'c1' }],
     }],
     content: {},
@@ -81,8 +87,8 @@ test('companyById finds a company', () => {
   assert.equal(companyById(data, 'nope'), undefined);
 });
 
-test('the real event brand is a draft and therefore not rendered', async () => {
+test('the real event brand is planned: announced but not sold', async () => {
   const data = await loadData('data');
-  assert.ok(data.brands.some((b) => b.slug === 'event'));
   assert.ok(!liveBrands(data).some((b) => b.slug === 'event'));
+  assert.ok(visibleBrands(data).some((b) => b.slug === 'event'));
 });

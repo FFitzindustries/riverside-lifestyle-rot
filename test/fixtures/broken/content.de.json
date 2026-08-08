@@ -20,5 +20,16 @@
   },
   "footer": {
     "copyright": "© 2026 Riverside Lifestyle"
+  },
+  "htmlLang": "de-CH",
+  "picker": {
+    "planned": "in Vorbereitung",
+    "choose": "Standort wählen →",
+    "allLocations": "Alle Standorte",
+    "byPlace": "Nach Ort",
+    "byBrand": "Nach Marke",
+    "locationsTitle": "Standorte",
+    "locationsIntro": "Alle Standorte der Riverside-Gruppe.",
+    "backToOverview": "Zur Übersicht"
   }
 }

@@ -43,9 +43,27 @@ test('the built index contains one panel per live brand', async () => {
   const html = await readFile(join(out, 'index.html'), 'utf8');
   const data = await loadData('data');
   assert.equal(html.match(/class="panel"/g).length, liveBrands(data).length);
-  for (const brand of data.brands.filter((b) => b.status !== 'live')) {
+  for (const brand of data.brands.filter((b) => b.status === 'draft')) {
     assert.doesNotMatch(html, new RegExp(`data-brand="${escapeRe(brand.slug)}"`),
       `draft brand ${brand.slug} got a panel`);
+  }
+  await rm(out, { recursive: true, force: true });
+});
+
+// A planned brand is announced, not sold. It appears so the expansion is
+// visible, but as a tile rather than a link, because there is no page behind
+// it yet and a dead link reads as a broken site.
+test('a planned brand appears as a tile without a link', async () => {
+  const { out } = await buildToTmp();
+  const html = await readFile(join(out, 'index.html'), 'utf8');
+  const data = await loadData('data');
+  const planned = data.brands.filter((b) => b.status === 'planned');
+  assert.ok(planned.length > 0, 'data no longer covers the planned case');
+  for (const brand of planned) {
+    assert.match(html, new RegExp(`data-brand="${escapeRe(brand.slug)}"`),
+      `planned brand ${brand.slug} is missing entirely`);
+    assert.doesNotMatch(html, new RegExp(`<a class="panel[^"]*" href="/${escapeRe(brand.slug)}/"`),
+      `planned brand ${brand.slug} became a link`);
   }
   await rm(out, { recursive: true, force: true });
 });
@@ -233,16 +251,41 @@ test('a brand without its own domain gets a hub page', async () => {
   await rm(out, { recursive: true, force: true });
 });
 
-test('a brand with its own domain gets no hub page', async () => {
+// Every brand with locations gets a hub page now, including the ones that own
+// a domain. The hub page is the only place that lists all countries; the
+// brand's own site only ever covers one of them.
+test('a brand with its own domain still gets a hub page', async () => {
   const { result } = await buildToTmp();
-  assert.ok(!result.written.includes('ink/index.html'));
-  assert.ok(!result.written.includes('beauty/index.html'));
+  assert.ok(result.written.includes('ink/index.html'));
+  assert.ok(result.written.includes('beauty/index.html'));
 });
 
-test('the panel of a domainless brand points at its hub page', async () => {
+test('every panel points at a hub page, never straight at a brand domain', async () => {
   const { out } = await buildToTmp();
   const html = await readFile(join(out, 'index.html'), 'utf8');
   assert.match(html, /href="\/gastro\/" data-brand="gastro"/);
+  assert.match(html, /href="\/ink\/" data-brand="ink"/);
+  assert.doesNotMatch(html, /<a class="panel[^"]*" href="https:/,
+    'a panel skipped the country choice and linked straight to a brand site');
+  await rm(out, { recursive: true, force: true });
+});
+
+test('both languages are built, legal pages only in German', async () => {
+  const { result } = await buildToTmp();
+  for (const page of ['index.html', 'ink/index.html', 'standorte/index.html',
+    'en/index.html', 'en/ink/index.html', 'en/locations/index.html']) {
+    assert.ok(result.written.includes(page), `${page} was not built`);
+  }
+  // Terms, impressum and privacy are binding texts under Swiss law. An
+  // unreviewed translation would be worse than a German original.
+  assert.ok(!result.written.some((p) => p.startsWith('en/') && p.endsWith('.html') && !p.endsWith('index.html')));
+});
+
+test('each page points hreflang at its own counterpart, not at the home page', async () => {
+  const { out } = await buildToTmp();
+  const html = await readFile(join(out, 'ink/index.html'), 'utf8');
+  assert.match(html, /hreflang="en" href="[^"]*\/en\/ink\/"/);
+  assert.match(html, /hreflang="de" href="[^"]*\/ink\/"/);
   await rm(out, { recursive: true, force: true });
 });
 
@@ -325,4 +368,43 @@ test('escapeForScriptBlock leaves the parsed value untouched', () => {
   const escaped = escapeForScriptBlock(json);
   assert.doesNotMatch(escaped, /</, 'a raw < survived');
   assert.equal(JSON.parse(escaped).name, 'a < b </script>');
+});
+
+// Relative media paths resolved against the current directory, so the English
+// home page asked for /en/assets/video/ink.mp4 and got a 404 while the German
+// one worked. Nothing in the markup looked wrong, the videos just never played.
+test('panel media is addressed from the site root, not relative to the page', async () => {
+  const { out } = await buildToTmp();
+  for (const page of ['index.html', 'en/index.html']) {
+    const html = await readFile(join(out, page), 'utf8');
+    assert.doesNotMatch(html, /src="assets\//, `relative video path in ${page}`);
+    assert.doesNotMatch(html, /poster="assets\//, `relative poster path in ${page}`);
+    assert.match(html, /src="\/assets\/video\//, `no root-relative video path in ${page}`);
+  }
+  await rm(out, { recursive: true, force: true });
+});
+
+test('the english nav stays in the english tree', async () => {
+  const { out } = await buildToTmp();
+  const html = await readFile(join(out, 'en/index.html'), 'utf8');
+  assert.match(html, /href="\/en\/ink\/"/);
+  assert.doesNotMatch(html, /<a href="\/ink\/"/, 'an english page linked into the german tree');
+  await rm(out, { recursive: true, force: true });
+});
+
+// A brand with no locations gets no page, so linking it would produce a 404
+// that only shows up when someone clicks it.
+test('a brand without locations is never linked in the nav', async () => {
+  const { out } = await buildToTmp();
+  const data = await loadData('data');
+  const html = await readFile(join(out, 'index.html'), 'utf8');
+  const orphans = data.brands.filter(
+    (b) => !data.locations.some((l) => (l.brands ?? []).some((e) => e.brand === b.slug)),
+  );
+  assert.ok(orphans.length > 0, 'data no longer covers the orphan case');
+  for (const brand of orphans) {
+    assert.doesNotMatch(html, new RegExp(`<a href="/${escapeRe(brand.slug)}/"`),
+      `brand ${brand.slug} is linked but has no page`);
+  }
+  await rm(out, { recursive: true, force: true });
 });

@@ -1,0 +1,14 @@
+[
+  { "code": "ch", "name": { "de": "Schweiz", "en": "Switzerland" }, "order": 1 },
+  { "code": "li", "name": { "de": "Liechtenstein", "en": "Liechtenstein" }, "order": 2 },
+  { "code": "at", "name": { "de": "Österreich", "en": "Austria" }, "order": 3 },
+  { "code": "de", "name": { "de": "Deutschland", "en": "Germany" }, "order": 4 },
+  { "code": "fr", "name": { "de": "Frankreich", "en": "France" }, "order": 5 },
+  { "code": "it", "name": { "de": "Italien", "en": "Italy" }, "order": 6 },
+  { "code": "es", "name": { "de": "Spanien", "en": "Spain" }, "order": 7 },
+  { "code": "nl", "name": { "de": "Niederlande", "en": "Netherlands" }, "order": 8 },
+  { "code": "ie", "name": { "de": "Irland", "en": "Ireland" }, "order": 9 },
+  { "code": "gb", "name": { "de": "Vereinigtes Königreich", "en": "United Kingdom" }, "order": 10 },
+  { "code": "us", "name": { "de": "USA", "en": "United States" }, "order": 11 },
+  { "code": "ae", "name": { "de": "Vereinigte Arabische Emirate", "en": "United Arab Emirates" }, "order": 12 }
+]

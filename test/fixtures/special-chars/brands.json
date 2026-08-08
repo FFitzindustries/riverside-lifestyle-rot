@@ -8,8 +8,14 @@
     "status": "live",
     "schemaType": "TattooParlor",
     "description": "Tattoo-, Piercing- und Bodymodification-Studios in St. Margrethen und St. Gallen.",
-    "media": { "video": "ink.mp4", "poster": "ink.jpg" },
-    "order": 1
+    "media": {
+      "video": "ink.mp4",
+      "poster": "ink.jpg"
+    },
+    "order": 1,
+    "sites": {
+      "ch": "https://www.riverside-ink.ch"
+    }
   },
   {
     "slug": "beauty",
@@ -20,8 +26,14 @@
     "status": "live",
     "schemaType": "BeautySalon",
     "description": "Medical-Beauty-Studio: Faltenbehandlung, Volumenaufbau und Hautverjüngung.",
-    "media": { "video": "beauty.mp4", "poster": "beauty.jpg" },
-    "order": 2
+    "media": {
+      "video": "beauty.mp4",
+      "poster": "beauty.jpg"
+    },
+    "order": 2,
+    "sites": {
+      "ch": "https://riverside-beauty.ch"
+    }
   },
   {
     "slug": "gastro",
@@ -32,8 +44,12 @@
     "status": "live",
     "schemaType": "Restaurant",
     "description": "Küche, Bar und Lounge mit \"Hausgemacht\"-Konzept unter dem Dach von Riverside Lifestyle.",
-    "media": { "video": "gastro.mp4", "poster": "gastro.jpg" },
-    "order": 3
+    "media": {
+      "video": "gastro.mp4",
+      "poster": "gastro.jpg"
+    },
+    "order": 3,
+    "sites": {}
   },
   {
     "slug": "event",
@@ -44,7 +60,11 @@
     "status": "draft",
     "schemaType": "Organization",
     "description": "Eventformate und Locations im Riverside-Verbund.",
-    "media": { "video": "", "poster": "" },
-    "order": 4
+    "media": {
+      "video": "",
+      "poster": ""
+    },
+    "order": 4,
+    "sites": {}
   }
 ]

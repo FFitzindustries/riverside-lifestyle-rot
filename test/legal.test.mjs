@@ -155,11 +155,25 @@ test('mandatory statutory liability provisions stay reserved', () => {
   );
 });
 
-test('real data renders every company', async () => {
+test('real data renders every company that legally exists', async () => {
   const data = await loadData('data');
   const html = renderCompanyTable(data);
-  for (const c of data.companies) {
+  for (const c of data.companies.filter((x) => x.exists !== false)) {
     assert.match(html, new RegExp(c.uid.replace(/\./g, '\\.')));
+  }
+});
+
+// An impressum names who runs the business. A company that is planned but not
+// registered runs nothing, so naming it would be a false statement rather
+// than an announcement of an opening.
+test('a company that does not exist yet stays out of the impressum', async () => {
+  const data = await loadData('data');
+  const html = renderCompanyTable(data);
+  const planned = data.companies.filter((c) => c.exists === false);
+  assert.ok(planned.length > 0, 'fixture no longer covers the planned case');
+  for (const c of planned) {
+    assert.doesNotMatch(html, new RegExp(c.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+      `planned company ${c.name} reached the impressum`);
   }
 });
 
@@ -184,8 +198,8 @@ test('real data maps brands correctly to companies', async () => {
   // brands it operates instead of silently skipping the check.
   assert.deepEqual(
     Object.keys(brandOracle).sort(),
-    data.companies.map((c) => c.id).sort(),
-    'brandOracle and data/companies.json disagree — add the new company to the oracle',
+    data.companies.filter((c) => c.exists !== false).map((c) => c.id).sort(),
+    'brandOracle and the existing companies in data/companies.json disagree, add the new company to the oracle',
   );
 
   // Verify each company's brands against the oracle

@@ -1,4 +1,5 @@
 import { escapeHtml, attr } from './render.mjs';
+import { localized } from './data.mjs';
 
 const lines = (arr) => (arr ?? []).map((l) => escapeHtml(l)).join('<br>');
 
@@ -36,20 +37,24 @@ export function renderHoldingBlock(data) {
     <p>${board}</p>`;
 }
 
-export function renderCompanyTable(data) {
+export function renderCompanyTable(data, lang = 'de') {
   const brandName = new Map((data.brands ?? []).map((b) => [b.slug, b.name]));
 
-  // Which brands does each company actually operate, and where.
+  // Which brands does each company actually operate, and where. Only open
+  // locations count: a company that has not opened anywhere operates nothing.
   const operated = new Map();
-  for (const loc of data.locations ?? []) {
+  for (const loc of (data.locations ?? []).filter((l) => l.status === 'open')) {
     for (const entry of loc.brands ?? []) {
       if (!operated.has(entry.companyId)) operated.set(entry.companyId, []);
-      const label = `${brandName.get(entry.brand) ?? entry.brand} ${loc.city}`;
+      const label = `${brandName.get(entry.brand) ?? entry.brand} ${localized(loc.city, lang)}`;
       operated.get(entry.companyId).push(label);
     }
   }
 
-  const rows = (data.companies ?? []).map((c) => {
+  // Only companies that exist in a commercial register belong here. Listing a
+  // planned GmbH in an impressum would be a false statement about who runs
+  // the business, not an announcement.
+  const rows = (data.companies ?? []).filter((c) => c.exists !== false).map((c) => {
     const hr = c.hrNumber ? `<br>HR-Nr.: ${escapeHtml(c.hrNumber)}` : '';
     const brands = (operated.get(c.id) ?? []).map((b) => escapeHtml(b)).join('<br>');
     return `        <tr>

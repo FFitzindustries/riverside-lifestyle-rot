@@ -1,35 +1,41 @@
 <!DOCTYPE html>
-<html lang="de-CH">
+<html lang="<!--{{htmlLang}}-->">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><!--{{title}}--></title>
 <meta name="description" content="<!--{{metaDescription}}-->">
-<link rel="canonical" href="https://riverside-lifestyle.com/">
+<link rel="canonical" href="<!--{{canonical}}-->">
+<!--{{hreflang}}-->
 <meta name="theme-color" content="#07080c">
-<link rel="icon" href="assets/brand/favicon.png" type="image/png">
+<link rel="icon" href="<!--{{base}}-->/assets/brand/favicon.png" type="image/png">
 
 <!-- Open Graph / Social -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Riverside Lifestyle">
-<meta property="og:title" content="Riverside Lifestyle — Tattoo, Beauty & Gastro">
-<meta property="og:description" content="Drei Welten. Ein Lifestyle. Tattoo, Beauty und Gastronomie unter einem Dach in St. Gallen & St. Margrethen.">
-<meta property="og:url" content="https://riverside-lifestyle.com/">
-<meta property="og:image" content="https://riverside-lifestyle.com/assets/poster/poster.jpg">
+<meta property="og:title" content="<!--{{title}}-->">
+<meta property="og:description" content="<!--{{metaDescription}}-->">
+<meta property="og:url" content="<!--{{canonical}}-->">
+<meta property="og:image" content="<!--{{ogImage}}-->">
+<meta property="og:locale" content="<!--{{ogLocale}}-->">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="stylesheet" href="css/fonts.css">
-<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="<!--{{base}}-->/css/fonts.css">
+<link rel="stylesheet" href="<!--{{base}}-->/css/styles.css">
 </head>
 <body>
 
 <!-- ===================== NAV ===================== -->
 <nav class="nav">
   <div class="nav-in">
-    <a class="brandmark" href="#top"><img class="brandmark__logo" src="assets/brand/logo.png" alt="Riverside Lifestyle"><span class="globe" role="img" aria-label="Weltweit"></span></a>
+    <a class="brandmark" href="#top"><img class="brandmark__logo" src="<!--{{base}}-->/assets/brand/logo.png" alt="Riverside Lifestyle"><span class="globe" role="img" aria-label="Weltweit"></span></a>
     <div class="nav-links" id="nav-links">
 <!--{{navLinks}}-->
+      <a href="<!--{{allLocationsHref}}-->"><!--{{allLocationsLabel}}--></a>
       <a href="#kontakt">Kontakt</a>
+      <span class="lang-switch">
+<!--{{langSwitch}}-->
+      </span>
     </div>
     <button class="nav-toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="nav-links">
       <span></span><span></span><span></span>
@@ -57,7 +63,7 @@
     <p class="ww-sub"><!--{{wwSub}}--></p>
   </div>
   <div class="ww-map">
-    <img class="ww-map__base" src="assets/world-map.svg" alt="" aria-hidden="true" loading="lazy">
+    <img class="ww-map__base" src="<!--{{base}}-->/assets/world-map.svg" alt="" aria-hidden="true" loading="lazy">
     <svg class="ww-map__fx" viewBox="0 0 2000 1000" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       <g class="ww-arcs">
       <path id="rw-arc0" class="ww-arc" pathLength="1" style="--i:0" d="M1053.6 236.4 Q821.2 96.6 588.9 273.9"/>
@@ -147,9 +153,9 @@
   <div class="legal-in">
     <span><!--{{copyright}}--></span>
     <nav class="legal-links">
-      <a href="impressum.html">Impressum</a>
-      <a href="agb.html">AGB</a>
-      <a href="datenschutz.html">Datenschutz</a>
+      <a href="<!--{{base}}-->/impressum.html">Impressum</a>
+      <a href="<!--{{base}}-->/agb.html">AGB</a>
+      <a href="<!--{{base}}-->/datenschutz.html">Datenschutz</a>
     </nav>
   </div>
 </footer>
@@ -159,6 +165,6 @@
 <!--{{jsonLd}}-->
 </script>
 
-<script src="js/main.js"></script>
+<script src="<!--{{base}}-->/js/main.js"></script>
 </body>
 </html>

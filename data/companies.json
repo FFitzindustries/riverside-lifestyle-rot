@@ -2,6 +2,8 @@
   {
     "id": "ink-stma",
     "name": "Riverside Ink St.Margrethen GmbH",
+    "country": "ch",
+    "exists": true,
     "uid": "CHE-208.553.114",
     "hrNumber": "CH-320.4.095.533-8",
     "address": ["Grenzstrasse 25", "9430 St. Margrethen", "Schweiz"],
@@ -12,6 +14,8 @@
   {
     "id": "ink-stg",
     "name": "Riverside Ink. St. Gallen GmbH",
+    "country": "ch",
+    "exists": true,
     "uid": "CHE-294.845.141",
     "hrNumber": "",
     "address": ["Spisergasse 14", "9000 St. Gallen", "Schweiz"],
@@ -22,11 +26,56 @@
   {
     "id": "ink-gastro",
     "name": "Riverside Ink. Gastro GmbH",
+    "country": "ch",
+    "exists": true,
     "uid": "CHE-289.050.911",
     "hrNumber": "",
     "address": ["Grenzstrasse 25", "9430 St. Margrethen", "Schweiz"],
     "register": "Handelsregisteramt des Kantons St. Gallen",
     "mail": "info@riverside-ink.ch",
     "phone": ""
-  }
+  },
+
+  { "id": "ink-ch", "name": "Riverside Ink. GmbH", "country": "ch", "exists": false },
+  { "id": "ink-zh", "name": "Riverside Ink. Zürich GmbH", "country": "ch", "exists": false },
+  { "id": "ink-bs", "name": "Riverside Ink. Basel GmbH", "country": "ch", "exists": false },
+  { "id": "rs-lu", "name": "Riverside Luzern GmbH", "country": "ch", "exists": false },
+  { "id": "rs-be", "name": "Riverside Bern GmbH", "country": "ch", "exists": false },
+  { "id": "event-ch", "name": "Riverside Event GmbH", "country": "ch", "exists": false },
+
+  { "id": "ink-vaduz", "name": "Riverside Ink. AG Vaduz", "country": "li", "exists": false },
+
+  { "id": "ink-wien", "name": "Riverside Ink. Wien GmbH", "country": "at", "exists": false },
+  { "id": "ink-salzburg", "name": "Riverside Ink. Salzburg GmbH", "country": "at", "exists": false },
+
+  { "id": "rs-muenchen", "name": "Riverside München GmbH", "country": "de", "exists": false },
+  { "id": "rs-berlin", "name": "Riverside Berlin GmbH", "country": "de", "exists": false },
+  { "id": "rs-stuttgart", "name": "Riverside Stuttgart GmbH", "country": "de", "exists": false },
+  { "id": "rs-ulm", "name": "Riverside Ulm GmbH", "country": "de", "exists": false },
+  { "id": "rs-lindau", "name": "Riverside Lindau GmbH", "country": "de", "exists": false },
+
+  { "id": "rs-paris", "name": "Riverside Paris GmbH", "country": "fr", "exists": false },
+  { "id": "rs-sttropez", "name": "Riverside St Tropez GmbH", "country": "fr", "exists": false },
+  { "id": "rs-strassburg", "name": "Riverside Strassburg GmbH", "country": "fr", "exists": false },
+
+  { "id": "rs-mailand", "name": "Riverside Mailand GmbH", "country": "it", "exists": false },
+  { "id": "rs-rom", "name": "Riverside Rom GmbH", "country": "it", "exists": false },
+
+  { "id": "ink-mallorca", "name": "Riverside ink. Mallorca S.L.", "country": "es", "exists": false },
+  { "id": "rs-ibiza", "name": "Riverside Ibiza S.L.", "country": "es", "exists": false },
+  { "id": "rs-malaga", "name": "Riverside Malaga S.L.", "country": "es", "exists": false },
+
+  { "id": "rs-amsterdam", "name": "Riverside Amsterdam GmbH", "country": "nl", "exists": false },
+
+  { "id": "rs-dublin", "name": "Riverside Dublin LLC", "country": "ie", "exists": false },
+
+  { "id": "ink-uk", "name": "Riverside ink. Ltd.", "country": "gb", "exists": false },
+  { "id": "ink-london", "name": "Riverside ink. London Ltd.", "country": "gb", "exists": false },
+
+  { "id": "ink-ny", "name": "Riverside Ink. NY LLC", "country": "us", "exists": false },
+  { "id": "ink-miami", "name": "Riverside Ink. Miami LLC", "country": "us", "exists": false },
+  { "id": "ink-la", "name": "Riverside Ink. LA LLC", "country": "us", "exists": false },
+
+  { "id": "rsl-dubai", "name": "Riverside Lifestyle Dubai LLC", "country": "ae", "exists": false },
+  { "id": "rsl-abudhabi", "name": "Riverside Lifestyle Abu Dhabi LLC", "country": "ae", "exists": false }
 ]
