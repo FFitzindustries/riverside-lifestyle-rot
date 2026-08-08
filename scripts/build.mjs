@@ -37,7 +37,12 @@ const LANGUAGES = [
  * second case, relative paths break as soon as a page moves into a
  * subdirectory. A single configurable base solves both.
  */
-const BASE = (process.env.BASE_PATH ?? '').replace(/\/$/, '');
+let BASE = '';
+
+/** Read at build time, not at import time, so the setting is testable. */
+function readBasePath() {
+  return (process.env.BASE_PATH ?? '').replace(/\/$/, '');
+}
 
 // Every page written as .../index.html is served at its directory, so the
 // sitemap should point there too — not at the literal file — to avoid two
@@ -95,10 +100,26 @@ function pagePath(lang, kind, slug) {
   return `${lang.prefix}${slug}/index.html`;
 }
 
-/** The URL a page is reachable at, including the configured base path. */
+/**
+ * The path a page is reachable at from where it is deployed, base path
+ * included. Use for internal links.
+ */
 function pageUrl(lang, kind, slug) {
-  const path = pagePath(lang, kind, slug).replace(/index\.html$/, '');
-  return `${BASE}/${path}`;
+  return `${BASE}/${pagePath(lang, kind, slug).replace(/index\.html$/, '')}`;
+}
+
+/**
+ * The address the page is meant to live at, for canonical, hreflang and
+ * og:url.
+ *
+ * Deliberately without the base path: that path says where the build
+ * currently sits (a GitHub Pages project folder), while canonical says where
+ * the page belongs. Concatenating both produced
+ * riverside-lifestyle.com/riverside-lifestyle-rot/ink/, an address that does
+ * not exist, and pointed every search engine at a 404.
+ */
+function canonicalUrl(siteBase, lang, kind, slug) {
+  return `${siteBase}/${pagePath(lang, kind, slug).replace(/index\.html$/, '')}`;
 }
 
 /**
@@ -111,9 +132,9 @@ function pageUrl(lang, kind, slug) {
  */
 function languageLinks(kind, slug, siteBase) {
   const alt = LANGUAGES
-    .map((l) => `<link rel="alternate" hreflang="${l.code}" href="${siteBase}${pageUrl(l, kind, slug)}">`)
+    .map((l) => `<link rel="alternate" hreflang="${l.code}" href="${canonicalUrl(siteBase, l, kind, slug)}">`)
     .join('\n');
-  const xDefault = `<link rel="alternate" hreflang="x-default" href="${siteBase}${pageUrl(LANGUAGES[0], kind, slug)}">`;
+  const xDefault = `<link rel="alternate" hreflang="x-default" href="${canonicalUrl(siteBase, LANGUAGES[0], kind, slug)}">`;
   return `${alt}\n${xDefault}`;
 }
 
@@ -131,6 +152,7 @@ function languageSwitch(current, kind, slug) {
 export async function build({
   dataDir = 'data', srcDir = 'src', outDir = 'dist', copyStatic = true,
 } = {}) {
+  BASE = readBasePath();
   const baseData = await loadData(dataDir, 'de');
   const errors = validate(baseData);
   if (errors.length) {
@@ -178,8 +200,8 @@ export async function build({
       ...common,
       title: escapeHtml(content.title),
       metaDescription: attr(content.metaDescription),
-      canonical: `${siteBase}${pageUrl(lang, 'index')}`,
-      ogImage: `${siteBase}${BASE}/assets/poster/poster.jpg`,
+      canonical: canonicalUrl(siteBase, lang, 'index'),
+      ogImage: `${siteBase}/assets/poster/poster.jpg`,
       ogLocale: lang.code === 'de' ? 'de_CH' : 'en_US',
       hreflang: languageLinks('index', null, siteBase),
       langSwitch: languageSwitch(lang, 'index', null),
@@ -213,7 +235,7 @@ export async function build({
         ...common,
         title: `${escapeHtml(brand.name)} — ${siteName}`,
         metaDescription: attr(brand.description),
-        canonical: `${siteBase}${pageUrl(lang, 'brand', brand.slug)}`,
+        canonical: canonicalUrl(siteBase, lang, 'brand', brand.slug),
         hreflang: languageLinks('brand', brand.slug, siteBase),
         langSwitch: languageSwitch(lang, 'brand', brand.slug),
         brandName: escapeHtml(brand.name),
@@ -233,7 +255,7 @@ export async function build({
       ...common,
       title: `${escapeHtml(content.picker.locationsTitle)} — ${siteName}`,
       metaDescription: attr(content.picker.locationsIntro),
-      canonical: `${siteBase}${pageUrl(lang, 'locations')}`,
+      canonical: canonicalUrl(siteBase, lang, 'locations'),
       hreflang: languageLinks('locations', null, siteBase),
       langSwitch: languageSwitch(lang, 'locations', null),
       locationsTitle: escapeHtml(content.picker.locationsTitle),

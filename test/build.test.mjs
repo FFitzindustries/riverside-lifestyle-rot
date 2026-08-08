@@ -408,3 +408,28 @@ test('a brand without locations is never linked in the nav', async () => {
   }
   await rm(out, { recursive: true, force: true });
 });
+
+// canonical says where a page belongs, the base path says where this build
+// happens to sit. Concatenating both produced
+// riverside-lifestyle.com/riverside-lifestyle-rot/ink/ and pointed search
+// engines at an address that does not exist.
+test('canonical and hreflang ignore the deployment base path', async () => {
+  const previous = process.env.BASE_PATH;
+  process.env.BASE_PATH = '/some-repo';
+  try {
+    const { out } = await buildToTmp();
+    const html = await readFile(join(out, 'ink/index.html'), 'utf8');
+    const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)[1];
+    assert.doesNotMatch(canonical, /some-repo/, 'the base path leaked into canonical');
+    assert.match(canonical, /\/ink\/$/);
+    for (const href of [...html.matchAll(/rel="alternate"[^>]*href="([^"]+)"/g)].map((m) => m[1])) {
+      assert.doesNotMatch(href, /some-repo/, 'the base path leaked into hreflang');
+    }
+    // Internal links must keep it, or the deployed site 404s on every asset.
+    assert.match(html, /href="\/some-repo\/beauty\/"/);
+    await rm(out, { recursive: true, force: true });
+  } finally {
+    if (previous === undefined) delete process.env.BASE_PATH;
+    else process.env.BASE_PATH = previous;
+  }
+});
