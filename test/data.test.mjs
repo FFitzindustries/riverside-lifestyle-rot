@@ -87,8 +87,15 @@ test('companyById finds a company', () => {
   assert.equal(companyById(data, 'nope'), undefined);
 });
 
-test('the real event brand is planned: announced but not sold', async () => {
-  const data = await loadData('data');
-  assert.ok(!liveBrands(data).some((b) => b.slug === 'event'));
-  assert.ok(visibleBrands(data).some((b) => b.slug === 'event'));
+// The three brand states are a rule of the build, not a property of today's
+// data: live is sold, planned is announced, draft is invisible. Pinned to a
+// fixture so merging or launching a brand cannot quietly delete the coverage.
+test('visibleBrands shows live and planned, liveBrands only live', () => {
+  const data = { brands: [
+    { slug: 'a', status: 'live', order: 1 },
+    { slug: 'b', status: 'planned', order: 2 },
+    { slug: 'c', status: 'draft', order: 3 },
+  ] };
+  assert.deepEqual(liveBrands(data).map((b) => b.slug), ['a']);
+  assert.deepEqual(visibleBrands(data).map((b) => b.slug), ['a', 'b']);
 });
