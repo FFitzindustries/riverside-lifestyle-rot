@@ -67,6 +67,52 @@ export function renderPanels(data, prefix = '', assetBase = '') {
   }).join('\n\n');
 }
 
+/**
+ * The portal hero: one room, three zones.
+ *
+ * Left to right in the photograph, which is not the order the brands carry in
+ * the data — Gastro sits in the middle of the room but is third by `order`.
+ * The geometry is measured against assets/hero/venue.jpg so the real brand
+ * mark lands exactly on the blank sign painted into the scene; the matching
+ * coordinates live in css/styles.css next to the zone classes.
+ */
+const PORTAL_ZONES = ['ink', 'gastro', 'beauty'];
+
+/**
+ * Returns null when the picture no longer matches the brands. Adding a fourth
+ * brand or retiring one leaves the painted signs wrong, and a portal with a
+ * homeless brand is worse than the panel row, so the caller falls back to it.
+ */
+export function renderPortal(data, prefix = '', assetBase = '') {
+  const shown = visibleBrands(data);
+  if (shown.length !== PORTAL_ZONES.length) return null;
+
+  const bySlug = new Map(shown.map((b) => [b.slug, b]));
+  const usable = PORTAL_ZONES.every(
+    (slug) => bySlug.has(slug) && locationsForBrand(data, slug).length > 0,
+  );
+  if (!usable) return null;
+
+  const room = `    <img class="portal__room" src="${attr(assetBase)}/assets/hero/venue.jpg" alt="${attr(data.content.picker.roomAlt)}">
+    <span class="portal__veil"></span>`;
+
+  const zones = PORTAL_ZONES.map((slug) => {
+    const b = bySlug.get(slug);
+    // href before data-brand: the build test reads the pair as one string.
+    return `    <a class="zone" href="${attr(brandHref(b, prefix))}" data-brand="${attr(slug)}">
+      <img class="zone__shot" src="${attr(assetBase)}/assets/hero/zone-${attr(slug)}.jpg" alt="" loading="lazy">
+      <span class="zone__signwrap"><span class="zone__sign"><span class="zone__mark"></span></span></span>
+      <span class="zone__body">
+        <span class="zone__name">${escapeHtml(b.short)}</span>
+        <span class="zone__sub">${escapeHtml(b.sub)}</span>
+        <span class="zone__cta">${escapeHtml(data.content.picker.choose)}</span>
+      </span>
+    </a>`;
+  }).join('\n\n');
+
+  return `${room}\n\n${zones}`;
+}
+
 /** One city: a link when it is open and has a target, plain text otherwise. */
 function renderCity(data, loc, brandSlug, lang) {
   const city = escapeHtml(localized(loc.city, lang));

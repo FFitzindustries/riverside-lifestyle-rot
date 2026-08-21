@@ -6,7 +6,8 @@
   "metaDescription": "Riverside Lifestyle is the parent brand of Riverside Lifestyle Holding AG: Riverside Ink, Riverside Beauty and Riverside Gastro.",
   "hero": {
     "kicker": "Riverside Worldwide",
-    "headline": "Three worlds. One <em>lifestyle</em>."
+    "headline": "Three worlds. One <em>lifestyle</em>.",
+    "portalHeadline": "Choose your <em>visit</em>."
   },
   "worldwide": {
     "kicker": "Riverside Worldwide",
@@ -22,7 +23,8 @@
     "byBrand": "By brand",
     "locationsTitle": "Locations",
     "locationsIntro": "Every location of the Riverside group. Locations that have not opened yet are marked as such.",
-    "backToOverview": "Back to overview"
+    "backToOverview": "Back to overview",
+    "roomAlt": "Riverside Lifestyle: tattoo studio, bar and beauty area in one room"
   },
   "contact": {
     "title": "Where to find us.",

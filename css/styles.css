@@ -127,6 +127,106 @@ a{color:inherit;text-decoration:none}
 .panel.is-active .panel-progress span{width:100%;transition:width var(--cycle) linear}
 .panels.is-paused .panel.is-active .panel-progress span{transition:none;width:30%}
 
+/* ===================== PORTAL-HERO =====================
+   Ein Raum, drei Zonen. Die Prozentwerte der Zonen und der Schilder sind an
+   assets/hero/venue.jpg vermessen: nur so sitzt das echte Wappen genau auf der
+   leeren Tafel, die im Bild haengt. Wird das Bild ausgetauscht, muessen sie neu
+   vermessen werden — sonst wandert das Logo von seinem Schild.
+   Die Szene traegt deshalb ein festes Seitenverhaeltnis statt object-fit:cover:
+   ein Beschnitt wuerde Bild und Overlay gegeneinander verschieben.
+   ======================================================================== */
+.hero--portal{
+  display:flex;flex-direction:column;align-items:center;
+  --portal-head:clamp(58px,8.4vh,96px);
+  /* Eigener, deckender Grund: der blaue Seitenverlauf des Body wuerde sonst
+     rings um den warmen Raum durchscheinen und die Buehne zerreissen. */
+  background:#07080c;
+}
+.hero--portal .hero-overlay{position:static;flex:none;height:var(--portal-head);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 22px;background:none;text-align:center;transition:opacity .5s var(--ease),transform .5s var(--ease)}
+/* Der Hero traegt die Farben des Raums, nicht das Seitenblau — sonst steht ein
+   kalter Akzent auf einem durchweg warmen Bild. */
+.hero--portal .hero-overlay .kicker{margin-bottom:5px;color:rgba(216,178,95,.8)}
+.hero--portal .hero-overlay h1{font-size:clamp(21px,2.3vw,38px);max-width:none}
+.hero--portal .hero-overlay h1 em{color:#d8b25f}
+.hero--portal.is-focused .hero-overlay{opacity:.3}
+.hero--portal.is-diving .hero-overlay{opacity:0;transform:translateY(-12px)}
+
+.portal__scene{
+  --ar:1.7686;
+  --portal-avail:max(calc(520px - var(--portal-head)),calc(100vh - var(--nav-h) - var(--legal-h) - var(--portal-head)));
+  position:relative;flex:none;overflow:hidden;
+  /* Volle Breite, nie ein seitlicher Rand. Ist die verfuegbare Hoehe kleiner
+     als das Bild braucht, wird unten beschnitten — dort liegen nur Boden und
+     Teppich. Die Schilder haengen oben und bleiben deshalb immer ganz im Bild.
+     Seitlich zu beschneiden ginge nicht: die aeusseren Schilder stehen bei
+     2,8% und 96,1% der Bildbreite. */
+  width:100%;
+  aspect-ratio:var(--ar);
+  max-height:var(--portal-avail);
+  transform-origin:50% 50%;will-change:transform
+}
+.portal__room{position:absolute;top:0;left:0;width:100%;height:auto;aspect-ratio:var(--ar);object-fit:cover}
+.portal__veil{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(7,8,12,.34) 0%,rgba(7,8,12,0) 17%,rgba(7,8,12,0) 45%,rgba(7,8,12,.93) 100%)}
+
+.zone{position:absolute;top:0;bottom:0;z-index:3;display:block;color:#fff;-webkit-tap-highlight-color:transparent}
+.zone[data-brand="ink"]{left:0;width:33.5%}
+.zone[data-brand="gastro"]{left:33.5%;width:33%}
+.zone[data-brand="beauty"]{left:66.5%;width:33.5%}
+.zone__shot{display:none}
+
+/* Der Dimmer liegt bewusst ueber Wappen und Beschriftung: sonst leuchten die
+   Wappen der abgewaehlten Zonen unvermindert weiter. */
+.zone::before{content:"";position:absolute;inset:0;z-index:5;background:rgba(4,5,9,.62);opacity:0;transition:opacity .55s var(--ease);pointer-events:none}
+.portal__scene.is-focused .zone:not(.is-active)::before{opacity:1}
+.zone:focus-visible{outline:none}
+.zone:focus-visible .zone__sign{outline:1px solid rgba(255,255,255,.55);outline-offset:12px}
+
+/* Traegt das Koordinatensystem des Bildes in die Zone: genauso breit wie die
+   Zone, genauso hoch wie das ungeschnittene Bild. Dadurch bleiben die am Bild
+   vermessenen Prozentwerte des Schildes gueltig, auch wenn die Szene unten
+   beschnitten wird. Verhaeltnis = Zonenbreite x Bildseitenverhaeltnis. */
+.zone__signwrap{position:absolute;top:0;left:0;width:100%;z-index:3;pointer-events:none}
+.zone[data-brand="ink"] .zone__signwrap{aspect-ratio:.5925}
+.zone[data-brand="gastro"] .zone__signwrap{aspect-ratio:.5836}
+.zone[data-brand="beauty"] .zone__signwrap{aspect-ratio:.5925}
+
+.zone__sign{position:absolute;z-index:3;display:grid;place-items:center;transition:filter .5s var(--ease),transform .6s var(--ease)}
+.zone[data-brand="ink"] .zone__sign{left:8.4%;top:8.42%;width:66.4%;height:23.49%}
+.zone[data-brand="gastro"] .zone__sign{left:19.6%;top:8.55%;width:61.3%;height:23.75%}
+.zone[data-brand="beauty"] .zone__sign{left:19.7%;top:8.42%;width:68.7%;height:23.16%}
+
+/* Das Wappen als Maske, nicht als Bild: so traegt jede Marke ihren eigenen
+   Ton und kann beim Aufleuchten die Farbe wechseln. */
+.zone__mark{width:100%;height:68%;background-color:var(--tint);opacity:.8;transition:opacity .5s var(--ease);-webkit-mask-position:center;mask-position:center;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain}
+.zone[data-brand="ink"] .zone__mark{--tint:#efe9df;-webkit-mask-image:url(../assets/brand/mark-ink.png);mask-image:url(../assets/brand/mark-ink.png)}
+.zone[data-brand="gastro"] .zone__mark{--tint:#d8b25f;-webkit-mask-image:url(../assets/brand/mark-gastro.png);mask-image:url(../assets/brand/mark-gastro.png)}
+.zone[data-brand="beauty"] .zone__mark{--tint:#e9c4ca;-webkit-mask-image:url(../assets/brand/mark-beauty.png);mask-image:url(../assets/brand/mark-beauty.png)}
+
+.zone.is-active .zone__sign{transform:translateY(-2px)}
+.zone.is-active .zone__mark{opacity:1}
+.zone.is-active[data-brand="ink"] .zone__sign{filter:drop-shadow(0 0 30px rgba(239,233,223,.4))}
+.zone.is-active[data-brand="gastro"] .zone__sign{filter:drop-shadow(0 0 30px rgba(216,178,95,.5))}
+.zone.is-active[data-brand="beauty"] .zone__sign{filter:drop-shadow(0 0 30px rgba(233,196,202,.45))}
+
+.zone__body{position:absolute;left:0;right:0;bottom:6%;z-index:4;text-align:center;padding:0 20px;transition:transform .55s var(--ease)}
+.zone.is-active .zone__body{transform:translateY(-6px)}
+.zone__name,.zone__sub,.zone__cta{display:block}
+.zone__name{font-family:var(--serif);font-weight:500;line-height:1;font-size:clamp(24px,2.7vw,48px);transition:font-size .5s var(--ease)}
+.zone.is-active .zone__name{font-size:clamp(28px,3.3vw,58px)}
+.zone__sub{margin-top:9px;font-size:clamp(8.5px,.74vw,11px);letter-spacing:.19em;text-transform:uppercase;color:var(--muted)}
+.zone__cta{margin-top:0;max-height:0;overflow:hidden;opacity:0;transform:translateY(8px);font-size:10.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;transition:.45s var(--ease)}
+.zone.is-active .zone__cta{margin-top:15px;max-height:40px;opacity:1;transform:none}
+
+/* Die Fahrt hinein: die Szene faehrt auf das Ziel zu, dann uebernimmt die
+   Schwarzblende und der Seitenwechsel passiert unsichtbar dahinter. */
+.portal__scene.is-diving{transition:transform 1.15s cubic-bezier(.62,.02,.28,1),filter 1.15s cubic-bezier(.62,.02,.28,1);transform:scale(3.1);filter:brightness(.86)}
+.portal__scene.is-diving .zone::before,
+.portal__scene.is-diving .zone__body,
+.portal__scene.is-diving .zone__sign,
+.portal__scene.is-diving .portal__veil{opacity:0;transition:opacity .45s ease}
+.portal-blackout{position:fixed;inset:0;z-index:80;background:var(--bg);opacity:0;pointer-events:none}
+.portal-blackout.is-on{opacity:1;transition:opacity .5s ease .6s}
+
 .scroll-cue{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 0;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
 .scroll-cue .bar{width:1px;height:38px;background:linear-gradient(var(--red),transparent)}
 
@@ -207,6 +307,53 @@ a{color:inherit;text-decoration:none}
   .panel-media::after{opacity:.6}
   .panel.is-active .panel-media::after{opacity:0}
   .panel.is-active .panel-more{margin-top:8px}
+
+  /* --- Portal mobil ---
+     Der Weitwinkelraum traegt auf 390px nicht: die drei Zonen waeren je 130px
+     breit. Deshalb bekommt hier jede Zone ihren eigenen Ausschnitt aus
+     demselben Bild.
+     Alle drei muessen ohne Scrollen zu sehen sein, also teilen sie sich die
+     Resthoehe des Bildschirms statt fester Kartenhoehen. Bei rund 200px pro
+     Karte steht das Wappen nicht mehr ueber dem Text, sondern daneben. */
+  .hero--portal{height:calc(100vh - var(--nav-h) - var(--legal-h));height:calc(100dvh - var(--nav-h) - var(--legal-h));min-height:0;display:flex;flex-direction:column;align-items:stretch;overflow:hidden}
+  .hero--portal .hero-overlay{height:auto;flex:none;order:-1;background:none;padding:14px 20px 12px;text-align:left;align-items:flex-start}
+  .hero--portal .hero-overlay .kicker{font-size:9.5px;margin-bottom:3px}
+  .hero--portal .hero-overlay h1{font-size:clamp(20px,5.2vw,28px)}
+  .hero--portal.is-focused .hero-overlay{opacity:1}
+
+  /* Ohne Abstaende, Rahmen und Radien: die drei Baender lesen sich als ein
+     zusammenhaengender Block, so wie der Raum am Desktop — nicht als drei
+     Karten, die auf dem Seitenhintergrund liegen. */
+  .portal__scene{width:100%;max-height:none;aspect-ratio:auto;order:0;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:0;padding:0}
+  .portal__room,.portal__veil{display:none}
+
+  .hero--portal .zone[data-brand]{position:relative;left:auto;top:auto;bottom:auto;width:100%;flex:1 1 0;min-height:0;aspect-ratio:auto;max-height:none;overflow:hidden;border-radius:0;border:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.07);display:flex;align-items:center;gap:16px;padding:0 20px;transform-origin:50% 50%;transition:transform .5s cubic-bezier(.62,.02,.28,1),opacity .4s ease}
+  .hero--portal .zone[data-brand]:first-of-type{box-shadow:none}
+  .zone__shot{display:block;position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;transform-origin:50% 45%;transition:transform 1s cubic-bezier(.62,.02,.28,1)}
+  /* Derselbe Pseudo-Layer, hier aber Dauergradient hinter Wappen und Text. */
+  .zone::before{z-index:1;opacity:1;background:linear-gradient(90deg,rgba(4,5,9,.9) 0%,rgba(4,5,9,.66) 52%,rgba(4,5,9,.42) 100%)}
+  .portal__scene.is-focused .zone:not(.is-active)::before{opacity:1}
+
+  /* Wappen links, Text rechts: quer laesst sich die flache Karte fuellen. */
+  .hero--portal .zone[data-brand] .zone__signwrap{position:relative;top:auto;left:auto;width:auto;height:64%;aspect-ratio:1;flex:none;z-index:3}
+  .hero--portal .zone[data-brand] .zone__sign{position:absolute;inset:0;width:auto;height:auto}
+  .zone__mark{width:100%;height:100%;opacity:1}
+  .zone[data-brand="ink"] .zone__sign{filter:drop-shadow(0 0 18px rgba(239,233,223,.3))}
+  .zone[data-brand="gastro"] .zone__sign{filter:drop-shadow(0 0 18px rgba(216,178,95,.38))}
+  .zone[data-brand="beauty"] .zone__sign{filter:drop-shadow(0 0 18px rgba(233,196,202,.34))}
+
+  .zone__body{position:relative;left:auto;right:auto;bottom:auto;flex:1;min-width:0;text-align:left;padding:0;transform:none}
+  .zone__name,.zone.is-active .zone__name{font-size:clamp(22px,6vw,30px)}
+  .zone__sub{font-size:9px;letter-spacing:.13em;margin-top:4px;color:var(--muted)}
+  .zone__cta,.zone.is-active .zone__cta{margin-top:7px;max-height:32px;opacity:1;transform:none;font-size:9.5px}
+
+  /* Fahrt hinein: hier zieht die getippte Karte auf, statt dass der Raum faehrt. */
+  .portal__scene.is-diving{transform:none;filter:none}
+  .hero--portal .zone[data-brand].is-diving{transform:scale(1.03)}
+  .zone.is-diving .zone__shot{transform:scale(1.4)}
+  .zone.is-diving .zone__signwrap,
+  .zone.is-diving .zone__body{opacity:0;transition:opacity .4s ease}
+  .portal__scene.is-diving .zone:not(.is-diving){opacity:0}
   .intro-grid{grid-template-columns:1fr;gap:18px}
   .intro-grid .kicker,.intro-h,.intro-p{grid-column:1}
   .intro-h{grid-row:auto}

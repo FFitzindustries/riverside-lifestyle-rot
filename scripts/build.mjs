@@ -7,7 +7,7 @@ import {
   renderTemplate, escapeHtml, attr,
 } from './lib/render.mjs';
 import {
-  renderNavLinks, renderPanels, renderOpenLocations, renderBrandLocations,
+  renderNavLinks, renderPanels, renderPortal, renderOpenLocations, renderBrandLocations,
   renderLocationsByPlace, panelsClass,
 } from './lib/fragments.mjs';
 import { buildJsonLd } from './lib/schema.mjs';
@@ -196,6 +196,8 @@ export async function build({
       allLocationsHref: attr(pageUrl(lang, 'locations')),
     };
 
+    const portal = renderPortal(data, `${BASE}/${lang.prefix}`.replace(/\/$/, ''), BASE);
+
     await write(pagePath(lang, 'index'), renderTemplate(templates.index, {
       ...common,
       title: escapeHtml(content.title),
@@ -205,12 +207,16 @@ export async function build({
       ogLocale: lang.code === 'de' ? 'de_CH' : 'en_US',
       hreflang: languageLinks('index', null, siteBase),
       langSwitch: languageSwitch(lang, 'index', null),
-      panels: renderPanels(data, `${BASE}/${lang.prefix}`.replace(/\/$/, ''), BASE),
-      panelsClass: panelsClass(data),
+      // The portal only works while the room picture still matches the brands.
+      // renderPortal says so itself; otherwise the panel row takes over and the
+      // hero keeps working with any number of brands.
+      panels: portal ?? renderPanels(data, `${BASE}/${lang.prefix}`.replace(/\/$/, ''), BASE),
+      panelsClass: portal ? 'portal__scene' : panelsClass(data),
+      heroMode: portal ? 'portal' : 'panels',
       heroKicker: escapeHtml(content.hero.kicker),
-      // hero.headline and worldwide.title intentionally carry raw markup
-      // (an <em> emphasis) and must not be escaped.
-      heroHeadline: content.hero.headline,
+      // hero.headline, hero.portalHeadline and worldwide.title intentionally
+      // carry raw markup (an <em> emphasis) and must not be escaped.
+      heroHeadline: portal ? content.hero.portalHeadline : content.hero.headline,
       wwKicker: escapeHtml(content.worldwide.kicker),
       wwTitle: content.worldwide.title,
       wwSub: escapeHtml(content.worldwide.sub),

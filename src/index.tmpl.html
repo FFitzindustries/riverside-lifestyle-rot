@@ -43,15 +43,19 @@
   </div>
 </nav>
 
-<!-- ===================== HERO: SPLIT THIRDS (PORTAL) ===================== -->
-<header id="top" class="hero">
-  <div class="<!--{{panelsClass}}-->">
-<!--{{panels}}-->
-  </div>
-
+<!-- ===================== HERO: PORTAL ODER SPLIT THIRDS =====================
+     Beide Bauarten teilen sich diese Struktur; welche greift, entscheidet
+     heroMode. Im Portal wird die Überschrift zur Kopfzeile über dem Raum,
+     im Panel-Modus bleibt sie das überlagerte Band wie bisher.
+     ========================================================================= -->
+<header id="top" class="hero hero--<!--{{heroMode}}-->">
   <div class="hero-overlay">
     <span class="kicker"><!--{{heroKicker}}--></span>
     <h1><!--{{heroHeadline}}--></h1>
+  </div>
+
+  <div class="<!--{{panelsClass}}-->">
+<!--{{panels}}-->
   </div>
 </header>
 

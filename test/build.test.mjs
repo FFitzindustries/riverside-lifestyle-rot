@@ -38,14 +38,17 @@ test('build writes the expected pages', async () => {
 // Derived from the data, not pinned to a number: adding a fourth brand to
 // data/brands.json must not force an edit here, or the test contradicts the
 // point of the data-driven build.
-test('the built index contains one panel per live brand', async () => {
+test('the built index contains one hero tile per live brand', async () => {
   const { out } = await buildToTmp();
   const html = await readFile(join(out, 'index.html'), 'utf8');
   const data = await loadData('data');
-  assert.equal(html.match(/class="panel"/g).length, liveBrands(data).length);
+  // The hero ships in two shapes — the portal room and the panel row — and
+  // which one renders depends on the data. Either way there is exactly one
+  // tile per live brand, and that is what this guards.
+  assert.equal(html.match(/class="(?:panel|zone)"/g).length, liveBrands(data).length);
   for (const brand of data.brands.filter((b) => b.status === 'draft')) {
     assert.doesNotMatch(html, new RegExp(`data-brand="${escapeRe(brand.slug)}"`),
-      `draft brand ${brand.slug} got a panel`);
+      `draft brand ${brand.slug} got a tile`);
   }
   await rm(out, { recursive: true, force: true });
 });
@@ -254,7 +257,7 @@ test('content text is escaped but intentional markup fields still render as real
   const html = await readFile(join(out, 'index.html'), 'utf8');
   const title = html.match(/<title>([\s\S]*?)<\/title>/)[1];
   assert.doesNotMatch(title, /&(?!amp;|lt;|gt;|quot;|#39;)/, 'raw & in <title>');
-  assert.match(html, /<em>Lifestyle<\/em>/, 'hero headline lost its real <em> element');
+  assert.match(html, /<h1>[^<]*<em>[^<]+<\/em>/, 'hero headline lost its real <em> element');
   await rm(out, { recursive: true, force: true });
 });
 
@@ -389,13 +392,14 @@ test('escapeForScriptBlock leaves the parsed value untouched', () => {
 // Relative media paths resolved against the current directory, so the English
 // home page asked for /en/assets/video/ink.mp4 and got a 404 while the German
 // one worked. Nothing in the markup looked wrong, the videos just never played.
-test('panel media is addressed from the site root, not relative to the page', async () => {
+test('hero media is addressed from the site root, not relative to the page', async () => {
   const { out } = await buildToTmp();
   for (const page of ['index.html', 'en/index.html']) {
     const html = await readFile(join(out, page), 'utf8');
-    assert.doesNotMatch(html, /src="assets\//, `relative video path in ${page}`);
+    assert.doesNotMatch(html, /src="assets\//, `relative media path in ${page}`);
     assert.doesNotMatch(html, /poster="assets\//, `relative poster path in ${page}`);
-    assert.match(html, /src="\/assets\/video\//, `no root-relative video path in ${page}`);
+    // Panel row serves video, portal serves stills; both must be root-relative.
+    assert.match(html, /src="\/assets\/(?:video|hero)\//, `no root-relative media path in ${page}`);
   }
   await rm(out, { recursive: true, force: true });
 });
@@ -424,6 +428,40 @@ test('a brand without locations is never linked in the nav', async () => {
   const html = await readFile(join(out, 'index.html'), 'utf8');
   assert.ok(!result.written.includes('orphan/index.html'), 'a brand without locations got a page');
   assert.doesNotMatch(html, /<a href="\/orphan\/"/, 'a brand without a page is linked in the nav');
+  await rm(out, { recursive: true, force: true });
+  await rm(dataDir, { recursive: true, force: true });
+});
+
+// Die Portal-Ansicht klebt am Raumbild: drei gemalte Tafeln, drei Marken. Für
+// eine vierte gäbe es kein Schild, und eine Marke ohne Platz im Bild wäre
+// schlimmer als der Verzicht auf den Effekt. Also fällt der Hero dann auf die
+// Panel-Reihe zurück, die mit jeder Markenzahl umgeht.
+test('the portal hero renders for the real data', async () => {
+  const { out } = await buildToTmp();
+  const html = await readFile(join(out, 'index.html'), 'utf8');
+  assert.match(html, /class="hero hero--portal"/, 'hero did not switch to the portal');
+  assert.match(html, /class="portal__scene"/);
+  assert.equal(html.match(/class="zone"/g).length, 3);
+  assert.doesNotMatch(html, /class="panel"/, 'both hero shapes rendered at once');
+  await rm(out, { recursive: true, force: true });
+});
+
+test('a brand the room picture has no sign for sends the hero back to the panel row', async () => {
+  const dataDir = await patchedDataDir('brands.json', (brands) => [
+    ...brands,
+    {
+      slug: 'event', name: 'Riverside Event', short: 'Event', sub: 'Events',
+      url: '', sites: {}, status: 'planned', schemaType: 'Organization',
+      description: 'Eventformate im Riverside-Verbund.',
+      media: { video: '', poster: '' }, order: 9,
+    },
+  ]);
+  const { out } = await buildToTmp({ dataDir });
+  const html = await readFile(join(out, 'index.html'), 'utf8');
+  assert.match(html, /class="hero hero--panels"/, 'the portal kept rendering without a sign for every brand');
+  assert.match(html, /class="panel"/);
+  assert.doesNotMatch(html, /class="zone"/);
+  assert.match(html, /data-brand="event"/, 'the fourth brand vanished instead of getting a panel');
   await rm(out, { recursive: true, force: true });
   await rm(dataDir, { recursive: true, force: true });
 });

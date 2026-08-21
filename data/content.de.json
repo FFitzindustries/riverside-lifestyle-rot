@@ -6,7 +6,8 @@
   "metaDescription": "Riverside Lifestyle ist die Dachmarke der Riverside Lifestyle Holding AG: Riverside Ink, Riverside Beauty und Riverside Gastro.",
   "hero": {
     "kicker": "Riverside Worldwide",
-    "headline": "Drei Welten. Ein <em>Lifestyle</em>."
+    "headline": "Drei Welten. Ein <em>Lifestyle</em>.",
+    "portalHeadline": "Wähle dein <em>Vorhaben</em>."
   },
   "worldwide": {
     "kicker": "Riverside Worldwide",
@@ -22,7 +23,8 @@
     "byBrand": "Nach Marke",
     "locationsTitle": "Standorte",
     "locationsIntro": "Alle Standorte der Riverside-Gruppe. Standorte in Vorbereitung sind als solche gekennzeichnet.",
-    "backToOverview": "Zur Übersicht"
+    "backToOverview": "Zur Übersicht",
+    "roomAlt": "Riverside Lifestyle: Tattoo-Studio, Bar und Beauty-Bereich in einem Raum"
   },
   "contact": {
     "title": "Hier findest du uns.",

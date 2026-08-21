@@ -3,3 +3,9 @@ previews/
 *.log
 node_modules/
 dist/
+
+# Von `npx skills add` installierte Fremd-Skills: Werkzeug der Arbeitsumgebung,
+# nicht Teil der Website.
+.agents/
+.claude/
+skills-lock.json
