@@ -331,7 +331,7 @@ a{color:inherit;text-decoration:none}
   .hero--portal .zone[data-brand]:first-of-type{box-shadow:none}
   .zone__shot{display:block;position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;transform-origin:50% 45%;transition:transform 1s cubic-bezier(.62,.02,.28,1)}
   /* Derselbe Pseudo-Layer, hier aber Dauergradient hinter Wappen und Text. */
-  .zone::before{z-index:1;opacity:1;background:linear-gradient(90deg,rgba(4,5,9,.9) 0%,rgba(4,5,9,.66) 52%,rgba(4,5,9,.42) 100%)}
+  .zone::before{z-index:1;opacity:1;background:linear-gradient(90deg,rgba(4,5,9,.92) 0%,rgba(4,5,9,.78) 30%,rgba(4,5,9,.42) 62%,rgba(4,5,9,.22) 100%)}
   .portal__scene.is-focused .zone:not(.is-active)::before{opacity:1}
 
   /* Wappen links, Text rechts: quer laesst sich die flache Karte fuellen. */
