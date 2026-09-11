@@ -11,7 +11,7 @@ import {
   renderLocationsByPlace, panelsClass,
 } from './lib/fragments.mjs';
 import { buildJsonLd } from './lib/schema.mjs';
-import { renderHoldingBlock, renderCompanyTable, renderLiabilitySection } from './lib/legal.mjs';
+import { renderHoldingBlock, renderCompanyTable, renderLiabilitySection, liableCompany } from './lib/legal.mjs';
 
 const STATIC_DIRS = ['assets', 'css', 'js'];
 const STATIC_FILES = ['robots.txt', 'llms.txt', 'favicon.svg', '.nojekyll'];
@@ -38,6 +38,16 @@ const LANGUAGES = [
  * subdirectory. A single configurable base solves both.
  */
 let BASE = '';
+
+/**
+ * Fusszeilen-Hinweis auf die haftende Gesellschaft. Der Markeninhaber verlangt
+ * ihn auf jeder Seite, nicht nur im Impressum.
+ */
+function liabilityNote(data) {
+  const c = liableCompany(data);
+  if (!c) return '';
+  return ` · Haftung: ${escapeHtml(c.name)}`;
+}
 
 /** Read at build time, not at import time, so the setting is testable. */
 function readBasePath() {
@@ -194,6 +204,7 @@ export async function build({
       navLinks: renderNavLinks(data, `${BASE}/${lang.prefix}`.replace(/\/$/, '')),
       allLocationsLabel: escapeHtml(content.picker.allLocations),
       allLocationsHref: attr(pageUrl(lang, 'locations')),
+      liabilityNote: liabilityNote(data),
     };
 
     const portal = renderPortal(data, `${BASE}/${lang.prefix}`.replace(/\/$/, ''), BASE);

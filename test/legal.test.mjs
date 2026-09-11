@@ -155,12 +155,31 @@ test('mandatory statutory liability provisions stay reserved', () => {
   );
 });
 
-test('real data renders every company that legally exists', async () => {
+test('real data renders every operating company that legally exists', async () => {
   const data = await loadData('data');
   const html = renderCompanyTable(data);
-  for (const c of data.companies.filter((x) => x.exists !== false)) {
+  for (const c of data.companies.filter((x) => x.exists !== false && x.role !== 'liability')) {
     assert.match(html, new RegExp(c.uid.replace(/\./g, '\\.')));
   }
+});
+
+// Die Haftungstraegerin betreibt keine Marke und steht deshalb nicht in der
+// Betriebstabelle. Verschwinden darf sie trotzdem nicht: der Markeninhaber
+// verlangt sie ausdruecklich auf jeder Seite.
+test('the liable company is named in the liability section, not in the table', async () => {
+  const data = await loadData('data');
+  const liable = data.companies.find((c) => c.role === 'liability');
+  assert.ok(liable, 'no company is marked as carrying liability');
+
+  const section = renderLiabilitySection(data);
+  assert.match(section, new RegExp(liable.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+    'the liability section does not name the liable company');
+  assert.match(section, new RegExp(liable.uid.replace(/\./g, '\\.')),
+    'the liable company is named without its UID');
+
+  assert.doesNotMatch(renderCompanyTable(data),
+    new RegExp(liable.uid.replace(/\./g, '\\.')),
+    'the liable company reached the table of operating companies');
 });
 
 // An impressum names who runs the business. A company that is planned but not
@@ -189,6 +208,7 @@ test('real data maps brands correctly to companies', async () => {
     'ink-stma': ['Riverside Ink', 'Riverside Beauty'],    // ink + beauty at St. Margrethen
     'ink-stg': ['Riverside Ink'],                          // ink at St. Gallen only
     'ink-gastro': ['Riverside Gastro'],                    // gastro at St. Margrethen (separate company)
+    'event-ch': ['Riverside Event'],                       // event at St. Margrethen
   };
 
   // The loop below iterates the oracle, so a company added to
@@ -198,7 +218,9 @@ test('real data maps brands correctly to companies', async () => {
   // brands it operates instead of silently skipping the check.
   assert.deepEqual(
     Object.keys(brandOracle).sort(),
-    data.companies.filter((c) => c.exists !== false).map((c) => c.id).sort(),
+    data.companies
+      .filter((c) => c.exists !== false && c.role !== 'liability')
+      .map((c) => c.id).sort(),
     'brandOracle and the existing companies in data/companies.json disagree, add the new company to the oracle',
   );
 

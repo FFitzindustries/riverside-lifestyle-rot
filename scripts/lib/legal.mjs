@@ -10,11 +10,12 @@ export function renderHoldingBlock(data) {
     .join('<br>');
   const vatLine = h.vat ? `\n      MWST-Nr.: ${escapeHtml(h.vat)}<br>` : '';
 
-  return `    <h2>Angaben zum Betreiber</h2>
+  return `    <h2>Angaben zum Markenrechtsinhaber</h2>
     <p>
       <strong>${escapeHtml(h.name)}</strong><br>
       ${lines(h.address)}
     </p>
+    <p>Die Betreiber der einzelnen Studios sind dem Impressum des jeweiligen Standorts zu entnehmen. Dasselbe gilt für die Haftung: Sie richtet sich nach den Angaben des jeweiligen Standorts.</p>
 
     <h2>Kontakt</h2>
     <p>
@@ -54,12 +55,20 @@ export function renderCompanyTable(data, lang = 'de') {
   // Only companies that exist in a commercial register belong here. Listing a
   // planned GmbH in an impressum would be a false statement about who runs
   // the business, not an announcement.
-  const rows = (data.companies ?? []).filter((c) => c.exists !== false).map((c) => {
+  // Wer keine Marke betreibt, gehoert nicht in die Tabelle der Betriebs-
+  // gesellschaften. Die Haftungstraegerin steht stattdessen im Haftungsabschnitt.
+  const rows = (data.companies ?? [])
+    .filter((c) => c.exists !== false && c.role !== 'liability')
+    .map((c) => {
     const hr = c.hrNumber ? `<br>HR-Nr.: ${escapeHtml(c.hrNumber)}` : '';
+    // Der Registerauszug macht die Angabe pruefbar, statt sie nur zu behaupten.
+    const zefix = c.zefix
+      ? `<br><a href="${attr(c.zefix)}" target="_blank" rel="noopener">Handelsregisterauszug</a>`
+      : '';
     const brands = (operated.get(c.id) ?? []).map((b) => escapeHtml(b)).join('<br>');
     return `        <tr>
           <td><strong>${escapeHtml(c.name)}</strong><br>${lines(c.address)}</td>
-          <td>UID: ${escapeHtml(c.uid)}${hr}<br>${escapeHtml(c.register)}</td>
+          <td>UID: ${escapeHtml(c.uid)}${hr}<br>${escapeHtml(c.register)}${zefix}</td>
           <td>${brands}</td>
         </tr>`;
   }).join('\n');
@@ -74,10 +83,23 @@ ${rows}
     </table>`;
 }
 
+/**
+ * Die Gesellschaft, die laut Vorgabe des Markeninhabers die Haftung übernimmt.
+ * Sie steht in companies.json, damit Name, UID und Registerlink nur an einer
+ * Stelle gepflegt werden.
+ */
+export function liableCompany(data) {
+  return (data.companies ?? []).find((c) => c.id === 'retro-ink') ?? null;
+}
+
 export function renderLiabilitySection(data) {
   const name = escapeHtml(data.holding.name);
+  const liable = liableCompany(data);
+  const liableBlock = liable
+    ? `\n    <p>Die Haftung für den operativen Betrieb übernimmt die <strong>${escapeHtml(liable.name)}</strong>, ${escapeHtml((liable.address ?? []).join(', '))}, UID ${escapeHtml(liable.uid)}${liable.zefix ? ` (<a href="${attr(liable.zefix)}" target="_blank" rel="noopener">Handelsregisterauszug</a>)` : ''}.</p>`
+    : '';
   return `    <h2>Haftung und Zuständigkeit</h2>
     <p>Riverside Lifestyle ist die Dachmarke der ${name}. Die Holding hält die Marken und betreibt diese Website. Sie führt selbst keinen operativen Betrieb und erbringt keine Tattoo-, Piercing-, Bodymodification-, Beauty-, Laser- oder Gastronomieleistungen.</p>
     <p>Jede Marke wird an jedem Standort von einer rechtlich eigenständigen Betriebsgesellschaft geführt; an einem Standort können mehrere Gesellschaften tätig sein. Welche Gesellschaft eine Marke an einem Standort betreibt, zeigt die Tabelle der Betriebsgesellschaften weiter unten. Ansprüche aus einer Behandlung oder Leistung richten sich gegen die dort genannte Betriebsgesellschaft und, soweit die Leistung von selbstständigen Auftragnehmerinnen und Auftragnehmern erbracht wird, gegen diese persönlich.</p>
-    <p>Eine Haftung der ${name} für Leistungen der Betriebsgesellschaften ist im gesetzlich zulässigen Rahmen ausgeschlossen. Zwingende gesetzliche Haftungsbestimmungen bleiben vorbehalten.</p>`;
+    <p>Eine Haftung der ${name} für Leistungen der Betriebsgesellschaften ist im gesetzlich zulässigen Rahmen ausgeschlossen. Zwingende gesetzliche Haftungsbestimmungen bleiben vorbehalten.</p>${liableBlock}`;
 }

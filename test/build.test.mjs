@@ -63,17 +63,17 @@ test('a planned brand appears as a tile without a link', async () => {
   const dataDir = await patchedDataDir('brands.json', (brands) => [
     ...brands,
     {
-      slug: 'event', name: 'Riverside Event', short: 'Event', sub: 'Events',
+      slug: 'academy', name: 'Riverside Academy', short: 'Academy', sub: 'Ausbildung',
       url: '', sites: {}, status: 'planned', schemaType: 'Organization',
-      description: 'Eventformate im Riverside-Verbund.',
+      description: 'Ausbildungsformate im Riverside-Verbund.',
       media: { video: '', poster: '' }, order: 9,
     },
   ]);
   const { out } = await buildToTmp({ dataDir });
   const html = await readFile(join(out, 'index.html'), 'utf8');
-  assert.match(html, /data-brand="event"/, 'the planned brand is missing entirely');
+  assert.match(html, /data-brand="academy"/, 'the planned brand is missing entirely');
   assert.match(html, /panel--planned/);
-  assert.doesNotMatch(html, /<a class="panel[^"]*" href="\/event\/"/, 'the planned brand became a link');
+  assert.doesNotMatch(html, /<a class="panel[^"]*" href="\/academy\/"/, 'the planned brand became a link');
   await rm(out, { recursive: true, force: true });
   await rm(dataDir, { recursive: true, force: true });
 });
@@ -208,7 +208,7 @@ test('team section, tracking disclaimer and whatsapp float are gone', async () =
 test('the impressum lists every company', async () => {
   const { out } = await buildToTmp();
   const html = await readFile(join(out, 'impressum.html'), 'utf8');
-  assert.match(html, /CHE-208\.553\.114/);
+  assert.match(html, /CHE-246\.562\.114/);
   assert.match(html, /CHE-294\.845\.141/);
   assert.match(html, /CHE-289\.050\.911/);
   await rm(out, { recursive: true, force: true });
@@ -309,8 +309,21 @@ test('each page points hreflang at its own counterpart, not at the home page', a
 });
 
 test('draft brands get no page at all', async () => {
-  const { result } = await buildToTmp();
-  assert.ok(!result.written.includes('event/index.html'));
+  const dataDir = await patchedDataDir('brands.json', (brands) => [
+    ...brands,
+    {
+      slug: 'atelier', name: 'Riverside Atelier', short: 'Atelier', sub: 'Studio',
+      url: '', sites: {}, status: 'draft', schemaType: 'Organization',
+      description: 'Noch nicht veroeffentlicht.',
+      media: { video: '', poster: '' }, order: 10,
+    },
+  ]);
+  const { out, result } = await buildToTmp({ dataDir });
+  assert.ok(!result.written.includes('atelier/index.html'));
+  const html = await readFile(join(out, 'index.html'), 'utf8');
+  assert.doesNotMatch(html, /data-brand="atelier"/, 'a draft brand reached the hero');
+  await rm(out, { recursive: true, force: true });
+  await rm(dataDir, { recursive: true, force: true });
 });
 
 // Regression test for a review finding: the hub-page loop once passed brand
@@ -441,7 +454,7 @@ test('the portal hero renders for the real data', async () => {
   const html = await readFile(join(out, 'index.html'), 'utf8');
   assert.match(html, /class="hero hero--portal"/, 'hero did not switch to the portal');
   assert.match(html, /class="portal__scene"/);
-  assert.equal(html.match(/class="zone"/g).length, 3);
+  assert.equal(html.match(/class="zone"/g).length, 4);
   assert.doesNotMatch(html, /class="panel"/, 'both hero shapes rendered at once');
   await rm(out, { recursive: true, force: true });
 });
@@ -450,9 +463,9 @@ test('a brand the room picture has no sign for sends the hero back to the panel 
   const dataDir = await patchedDataDir('brands.json', (brands) => [
     ...brands,
     {
-      slug: 'event', name: 'Riverside Event', short: 'Event', sub: 'Events',
+      slug: 'academy', name: 'Riverside Academy', short: 'Academy', sub: 'Ausbildung',
       url: '', sites: {}, status: 'planned', schemaType: 'Organization',
-      description: 'Eventformate im Riverside-Verbund.',
+      description: 'Ausbildungsformate im Riverside-Verbund.',
       media: { video: '', poster: '' }, order: 9,
     },
   ]);
@@ -461,7 +474,7 @@ test('a brand the room picture has no sign for sends the hero back to the panel 
   assert.match(html, /class="hero hero--panels"/, 'the portal kept rendering without a sign for every brand');
   assert.match(html, /class="panel"/);
   assert.doesNotMatch(html, /class="zone"/);
-  assert.match(html, /data-brand="event"/, 'the fourth brand vanished instead of getting a panel');
+  assert.match(html, /data-brand="academy"/, 'the extra brand vanished instead of getting a panel');
   await rm(out, { recursive: true, force: true });
   await rm(dataDir, { recursive: true, force: true });
 });
