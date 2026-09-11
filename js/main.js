@@ -103,7 +103,7 @@
 
   // Zoomziel je Marke, in Prozent des Bildes: die Fahrt soll auf der Handlung
   // landen, nicht auf dem Schild darüber.
-  var TARGET = { ink: '16% 58%', gastro: '50% 52%', beauty: '82% 55%' };
+  var TARGET = { ink: '12% 60%', gastro: '38% 55%', beauty: '64% 58%', event: '88% 55%' };
 
   function focus(zone) {
     if (diving) return;

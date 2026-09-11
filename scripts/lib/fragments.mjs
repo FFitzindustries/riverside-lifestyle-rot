@@ -71,12 +71,12 @@ export function renderPanels(data, prefix = '', assetBase = '') {
  * The portal hero: one room, three zones.
  *
  * Left to right in the photograph, which is not the order the brands carry in
- * the data — Gastro sits in the middle of the room but is third by `order`.
+ * the data — Gastro stands second in the room but is third by `order`.
  * The geometry is measured against assets/hero/venue.jpg so the real brand
  * mark lands exactly on the blank sign painted into the scene; the matching
  * coordinates live in css/styles.css next to the zone classes.
  */
-const PORTAL_ZONES = ['ink', 'gastro', 'beauty'];
+const PORTAL_ZONES = ['ink', 'gastro', 'beauty', 'event'];
 
 /**
  * Returns null when the picture no longer matches the brands. Adding a fourth

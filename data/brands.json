@@ -52,5 +52,21 @@
       "poster": "gastro.jpg"
     },
     "order": 3
+  },
+  {
+    "slug": "event",
+    "name": "Riverside Event",
+    "short": "Event",
+    "sub": "Bühne · Musik · Private Events",
+    "url": "",
+    "sites": {},
+    "status": "live",
+    "schemaType": "EntertainmentBusiness",
+    "description": "Eventfläche mit Bühne, Musik und Bar für Formate von der Studionacht bis zur privaten Feier.",
+    "media": {
+      "video": "gastro.mp4",
+      "poster": "gastro.jpg"
+    },
+    "order": 4
   }
 ]

@@ -169,9 +169,10 @@ a{color:inherit;text-decoration:none}
 .portal__veil{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(7,8,12,.34) 0%,rgba(7,8,12,0) 17%,rgba(7,8,12,0) 45%,rgba(7,8,12,.93) 100%)}
 
 .zone{position:absolute;top:0;bottom:0;z-index:3;display:block;color:#fff;-webkit-tap-highlight-color:transparent}
-.zone[data-brand="ink"]{left:0;width:33.5%}
-.zone[data-brand="gastro"]{left:33.5%;width:33%}
-.zone[data-brand="beauty"]{left:66.5%;width:33.5%}
+.zone[data-brand="ink"]{left:0;width:25%}
+.zone[data-brand="gastro"]{left:25%;width:27%}
+.zone[data-brand="beauty"]{left:52%;width:24%}
+.zone[data-brand="event"]{left:76%;width:24%}
 .zone__shot{display:none}
 
 /* Der Dimmer liegt bewusst ueber Wappen und Beschriftung: sonst leuchten die
@@ -186,14 +187,16 @@ a{color:inherit;text-decoration:none}
    vermessenen Prozentwerte des Schildes gueltig, auch wenn die Szene unten
    beschnitten wird. Verhaeltnis = Zonenbreite x Bildseitenverhaeltnis. */
 .zone__signwrap{position:absolute;top:0;left:0;width:100%;z-index:3;pointer-events:none}
-.zone[data-brand="ink"] .zone__signwrap{aspect-ratio:.5925}
-.zone[data-brand="gastro"] .zone__signwrap{aspect-ratio:.5836}
-.zone[data-brand="beauty"] .zone__signwrap{aspect-ratio:.5925}
+.zone[data-brand="ink"] .zone__signwrap{aspect-ratio:.4421}
+.zone[data-brand="gastro"] .zone__signwrap{aspect-ratio:.4775}
+.zone[data-brand="beauty"] .zone__signwrap{aspect-ratio:.4244}
+.zone[data-brand="event"] .zone__signwrap{aspect-ratio:.4244}
 
 .zone__sign{position:absolute;z-index:3;display:grid;place-items:center;transition:filter .5s var(--ease),transform .6s var(--ease)}
-.zone[data-brand="ink"] .zone__sign{left:8.4%;top:8.42%;width:66.4%;height:23.49%}
-.zone[data-brand="gastro"] .zone__sign{left:19.6%;top:8.55%;width:61.3%;height:23.75%}
-.zone[data-brand="beauty"] .zone__sign{left:19.7%;top:8.42%;width:68.7%;height:23.16%}
+.zone[data-brand="ink"] .zone__sign{left:4.92%;top:12.83%;width:82.28%;height:19.80%}
+.zone[data-brand="gastro"] .zone__sign{left:11.70%;top:13.09%;width:74.26%;height:20.20%}
+.zone[data-brand="beauty"] .zone__sign{left:9.79%;top:13.03%;width:79.38%;height:20.26%}
+.zone[data-brand="event"] .zone__sign{left:6.83%;top:12.76%;width:87.58%;height:19.87%}
 
 /* Das Wappen als Maske, nicht als Bild: so traegt jede Marke ihren eigenen
    Ton und kann beim Aufleuchten die Farbe wechseln. */
@@ -201,12 +204,16 @@ a{color:inherit;text-decoration:none}
 .zone[data-brand="ink"] .zone__mark{--tint:#efe9df;-webkit-mask-image:url(../assets/brand/mark-ink.png);mask-image:url(../assets/brand/mark-ink.png)}
 .zone[data-brand="gastro"] .zone__mark{--tint:#d8b25f;-webkit-mask-image:url(../assets/brand/mark-gastro.png);mask-image:url(../assets/brand/mark-gastro.png)}
 .zone[data-brand="beauty"] .zone__mark{--tint:#e9c4ca;-webkit-mask-image:url(../assets/brand/mark-beauty.png);mask-image:url(../assets/brand/mark-beauty.png)}
+/* Platzhalter: die Wappenform ohne Banderole, im Ton des Buehnenlichts.
+   Wird ersetzt, sobald das echte Event-Logo vorliegt. */
+.zone[data-brand="event"] .zone__mark{--tint:#b9c4f2;-webkit-mask-image:url(../assets/brand/mark-event.png);mask-image:url(../assets/brand/mark-event.png)}
 
 .zone.is-active .zone__sign{transform:translateY(-2px)}
 .zone.is-active .zone__mark{opacity:1}
 .zone.is-active[data-brand="ink"] .zone__sign{filter:drop-shadow(0 0 30px rgba(239,233,223,.4))}
 .zone.is-active[data-brand="gastro"] .zone__sign{filter:drop-shadow(0 0 30px rgba(216,178,95,.5))}
 .zone.is-active[data-brand="beauty"] .zone__sign{filter:drop-shadow(0 0 30px rgba(233,196,202,.45))}
+.zone.is-active[data-brand="event"] .zone__sign{filter:drop-shadow(0 0 30px rgba(185,196,242,.5))}
 
 .zone__body{position:absolute;left:0;right:0;bottom:6%;z-index:4;text-align:center;padding:0 20px;transition:transform .55s var(--ease)}
 .zone.is-active .zone__body{transform:translateY(-6px)}
@@ -341,6 +348,7 @@ a{color:inherit;text-decoration:none}
   .zone[data-brand="ink"] .zone__sign{filter:drop-shadow(0 0 18px rgba(239,233,223,.3))}
   .zone[data-brand="gastro"] .zone__sign{filter:drop-shadow(0 0 18px rgba(216,178,95,.38))}
   .zone[data-brand="beauty"] .zone__sign{filter:drop-shadow(0 0 18px rgba(233,196,202,.34))}
+  .zone[data-brand="event"] .zone__sign{filter:drop-shadow(0 0 18px rgba(185,196,242,.38))}
 
   .zone__body{position:relative;left:auto;right:auto;bottom:auto;flex:1;min-width:0;text-align:left;padding:0;transform:none}
   .zone__name,.zone.is-active .zone__name{font-size:clamp(22px,6vw,30px)}

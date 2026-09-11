@@ -4,12 +4,32 @@
     "city": "St. Margrethen",
     "country": "ch",
     "status": "open",
-    "address": ["Grenzstrasse 25", "9430 St. Margrethen"],
+    "address": [
+      "Grenzstrasse 25",
+      "9430 St. Margrethen"
+    ],
     "brandsConfirmed": true,
     "brands": [
-      { "brand": "ink", "companyId": "ink-stma", "url": "" },
-      { "brand": "beauty", "companyId": "ink-stma", "url": "" },
-      { "brand": "gastro", "companyId": "ink-gastro", "url": "" }
+      {
+        "brand": "ink",
+        "companyId": "ink-stma",
+        "url": ""
+      },
+      {
+        "brand": "beauty",
+        "companyId": "ink-stma",
+        "url": ""
+      },
+      {
+        "brand": "gastro",
+        "companyId": "ink-gastro",
+        "url": ""
+      },
+      {
+        "brand": "event",
+        "companyId": "event-ch",
+        "url": ""
+      }
     ]
   },
   {
@@ -17,20 +37,36 @@
     "city": "St. Gallen",
     "country": "ch",
     "status": "open",
-    "address": ["Spisergasse 14", "9000 St. Gallen"],
+    "address": [
+      "Spisergasse 14",
+      "9000 St. Gallen"
+    ],
     "brandsConfirmed": true,
     "brands": [
-      { "brand": "ink", "companyId": "ink-stg", "url": "" }
+      {
+        "brand": "ink",
+        "companyId": "ink-stg",
+        "url": ""
+      }
     ]
   },
   {
     "slug": "zuerich",
-    "city": { "de": "Zürich", "en": "Zurich" },
+    "city": {
+      "de": "Zürich",
+      "en": "Zurich"
+    },
     "country": "ch",
     "status": "planned",
     "address": [],
     "brandsConfirmed": true,
-    "brands": [{ "brand": "ink", "companyId": "ink-zh", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "ink-zh",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "basel",
@@ -39,16 +75,31 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": true,
-    "brands": [{ "brand": "ink", "companyId": "ink-bs", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "ink-bs",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "luzern",
-    "city": { "de": "Luzern", "en": "Lucerne" },
+    "city": {
+      "de": "Luzern",
+      "en": "Lucerne"
+    },
     "country": "ch",
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-lu", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-lu",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "bern",
@@ -57,7 +108,13 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-be", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-be",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "vaduz",
@@ -66,16 +123,31 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": true,
-    "brands": [{ "brand": "ink", "companyId": "ink-vaduz", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "ink-vaduz",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "wien",
-    "city": { "de": "Wien", "en": "Vienna" },
+    "city": {
+      "de": "Wien",
+      "en": "Vienna"
+    },
     "country": "at",
     "status": "planned",
     "address": [],
     "brandsConfirmed": true,
-    "brands": [{ "brand": "ink", "companyId": "ink-wien", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "ink-wien",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "salzburg",
@@ -84,16 +156,31 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": true,
-    "brands": [{ "brand": "ink", "companyId": "ink-salzburg", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "ink-salzburg",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "muenchen",
-    "city": { "de": "München", "en": "Munich" },
+    "city": {
+      "de": "München",
+      "en": "Munich"
+    },
     "country": "de",
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-muenchen", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-muenchen",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "berlin",
@@ -102,7 +189,13 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-berlin", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-berlin",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "stuttgart",
@@ -111,7 +204,13 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-stuttgart", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-stuttgart",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "ulm",
@@ -120,7 +219,13 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-ulm", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-ulm",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "lindau",
@@ -129,7 +234,13 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-lindau", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-lindau",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "paris",
@@ -138,7 +249,13 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-paris", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-paris",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "st-tropez",
@@ -147,34 +264,67 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-sttropez", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-sttropez",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "strassburg",
-    "city": { "de": "Strassburg", "en": "Strasbourg" },
+    "city": {
+      "de": "Strassburg",
+      "en": "Strasbourg"
+    },
     "country": "fr",
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-strassburg", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-strassburg",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "mailand",
-    "city": { "de": "Mailand", "en": "Milan" },
+    "city": {
+      "de": "Mailand",
+      "en": "Milan"
+    },
     "country": "it",
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-mailand", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-mailand",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "rom",
-    "city": { "de": "Rom", "en": "Rome" },
+    "city": {
+      "de": "Rom",
+      "en": "Rome"
+    },
     "country": "it",
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-rom", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-rom",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "mallorca",
@@ -183,7 +333,13 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": true,
-    "brands": [{ "brand": "ink", "companyId": "ink-mallorca", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "ink-mallorca",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "ibiza",
@@ -192,16 +348,31 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-ibiza", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-ibiza",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "malaga",
-    "city": { "de": "Malaga", "en": "Málaga" },
+    "city": {
+      "de": "Malaga",
+      "en": "Málaga"
+    },
     "country": "es",
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-malaga", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-malaga",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "amsterdam",
@@ -210,7 +381,13 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-amsterdam", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-amsterdam",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "dublin",
@@ -219,7 +396,13 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": false,
-    "brands": [{ "brand": "ink", "companyId": "rs-dublin", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rs-dublin",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "london",
@@ -228,7 +411,13 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": true,
-    "brands": [{ "brand": "ink", "companyId": "ink-london", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "ink-london",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "new-york",
@@ -237,7 +426,13 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": true,
-    "brands": [{ "brand": "ink", "companyId": "ink-ny", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "ink-ny",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "miami",
@@ -246,7 +441,13 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": true,
-    "brands": [{ "brand": "ink", "companyId": "ink-miami", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "ink-miami",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "los-angeles",
@@ -255,7 +456,13 @@
     "status": "planned",
     "address": [],
     "brandsConfirmed": true,
-    "brands": [{ "brand": "ink", "companyId": "ink-la", "url": "" }]
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "ink-la",
+        "url": ""
+      }
+    ]
   },
   {
     "slug": "dubai",
@@ -265,9 +472,21 @@
     "address": [],
     "brandsConfirmed": false,
     "brands": [
-      { "brand": "ink", "companyId": "rsl-dubai", "url": "" },
-      { "brand": "beauty", "companyId": "rsl-dubai", "url": "" },
-      { "brand": "gastro", "companyId": "rsl-dubai", "url": "" }
+      {
+        "brand": "ink",
+        "companyId": "rsl-dubai",
+        "url": ""
+      },
+      {
+        "brand": "beauty",
+        "companyId": "rsl-dubai",
+        "url": ""
+      },
+      {
+        "brand": "gastro",
+        "companyId": "rsl-dubai",
+        "url": ""
+      }
     ]
   },
   {
@@ -278,9 +497,21 @@
     "address": [],
     "brandsConfirmed": false,
     "brands": [
-      { "brand": "ink", "companyId": "rsl-abudhabi", "url": "" },
-      { "brand": "beauty", "companyId": "rsl-abudhabi", "url": "" },
-      { "brand": "gastro", "companyId": "rsl-abudhabi", "url": "" }
+      {
+        "brand": "ink",
+        "companyId": "rsl-abudhabi",
+        "url": ""
+      },
+      {
+        "brand": "beauty",
+        "companyId": "rsl-abudhabi",
+        "url": ""
+      },
+      {
+        "brand": "gastro",
+        "companyId": "rsl-abudhabi",
+        "url": ""
+      }
     ]
   }
 ]
