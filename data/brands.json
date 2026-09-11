@@ -57,12 +57,12 @@
     "slug": "event",
     "name": "Riverside Event",
     "short": "Event",
-    "sub": "Bühne · Musik · Private Events",
+    "sub": "TOTR · Special Events · Conventions",
     "url": "",
     "sites": {},
     "status": "live",
     "schemaType": "EntertainmentBusiness",
-    "description": "Eventfläche mit Bühne, Musik und Bar für Formate von der Studionacht bis zur privaten Feier.",
+    "description": "Tattoo on the Road (TOTR): Special Events und Conventions rund um Beauty und Tattoo.",
     "media": {
       "video": "gastro.mp4",
       "poster": "gastro.jpg"
