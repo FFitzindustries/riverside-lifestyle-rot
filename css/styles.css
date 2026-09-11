@@ -204,8 +204,6 @@ a{color:inherit;text-decoration:none}
 .zone[data-brand="ink"] .zone__mark{--tint:#efe9df;-webkit-mask-image:url(../assets/brand/mark-ink.png);mask-image:url(../assets/brand/mark-ink.png)}
 .zone[data-brand="gastro"] .zone__mark{--tint:#d8b25f;-webkit-mask-image:url(../assets/brand/mark-gastro.png);mask-image:url(../assets/brand/mark-gastro.png)}
 .zone[data-brand="beauty"] .zone__mark{--tint:#e9c4ca;-webkit-mask-image:url(../assets/brand/mark-beauty.png);mask-image:url(../assets/brand/mark-beauty.png)}
-/* Platzhalter: die Wappenform ohne Banderole, im Ton des Buehnenlichts.
-   Wird ersetzt, sobald das echte Event-Logo vorliegt. */
 .zone[data-brand="event"] .zone__mark{--tint:#b9c4f2;-webkit-mask-image:url(../assets/brand/mark-event.png);mask-image:url(../assets/brand/mark-event.png)}
 
 .zone.is-active .zone__sign{transform:translateY(-2px)}
