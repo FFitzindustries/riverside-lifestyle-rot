@@ -40,10 +40,8 @@
     "name": "Riverside Gastro",
     "short": "Gastro",
     "sub": "Küche · Bar · Lounge · Events",
-    "url": "https://www.riverside-ink.ch/gastro/",
-    "sites": {
-      "ch": "https://www.riverside-ink.ch/gastro/"
-    },
+    "url": "",
+    "sites": {},
     "status": "live",
     "schemaType": "Restaurant",
     "description": "Küche, Bar, Lounge und Eventformate unter dem Dach von Riverside Lifestyle.",

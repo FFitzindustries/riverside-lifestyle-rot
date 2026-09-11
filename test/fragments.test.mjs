@@ -7,7 +7,8 @@ import {
 
 const content = {
   picker: {
-    planned: 'in Vorbereitung', choose: 'Standort wählen →', allLocations: 'Alle Standorte',
+    planned: 'in Vorbereitung', siteInProgress: 'Website ist noch im Aufbau',
+    choose: 'Standort wählen →', allLocations: 'Alle Standorte',
     byPlace: 'Nach Ort', byBrand: 'Nach Marke', locationsTitle: 'Standorte',
     locationsIntro: 'Alle Standorte.', backToOverview: 'Zur Übersicht',
   },
@@ -201,6 +202,11 @@ test('an open city without any target renders as text, not as an empty link', ()
   const html = renderBrandLocations(data, 'gastro');
   assert.match(html, /St\. Margrethen/);
   assert.doesNotMatch(html, /href=""/);
+});
+
+test('an open city without any target names the site as still in progress', () => {
+  const html = renderBrandLocations(data, 'gastro');
+  assert.match(html, /Website ist noch im Aufbau/);
 });
 
 test('a brand in a single country renders without country headings', () => {

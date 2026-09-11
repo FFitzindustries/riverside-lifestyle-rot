@@ -113,7 +113,7 @@ export function renderPortal(data, prefix = '', assetBase = '') {
   return `${room}\n\n${zones}`;
 }
 
-/** One city: a link when it is open and has a target, plain text otherwise. */
+/** One city: a link when it is open and has a target, a construction note otherwise. */
 function renderCity(data, loc, brandSlug, lang) {
   const city = escapeHtml(localized(loc.city, lang));
   if (loc.status !== 'open') {
@@ -121,7 +121,7 @@ function renderCity(data, loc, brandSlug, lang) {
   }
   const href = locationHref(data, loc, brandSlug);
   if (!href) {
-    return `          <li class="loc-city"><span>${city}</span></li>`;
+    return `          <li class="loc-city loc-city--planned"><span>${city}</span><em>${escapeHtml(data.content.picker.siteInProgress)}</em></li>`;
   }
   return `          <li class="loc-city"><a href="${attr(href)}">${city}</a></li>`;
 }

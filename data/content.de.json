@@ -17,6 +17,7 @@
   },
   "picker": {
     "planned": "in Vorbereitung",
+    "siteInProgress": "Website ist noch im Aufbau",
     "choose": "Standort wählen →",
     "allLocations": "Alle Standorte",
     "byPlace": "Nach Ort",
