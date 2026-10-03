@@ -57,7 +57,7 @@ export function buildJsonLd(data, lang = 'de') {
       '@type': b.schemaType,
       '@id': `${base}/#${b.slug}`,
       name: b.name,
-      url: `${base}/${b.slug}/`,
+      url: b.redirect ?? `${base}/${b.slug}/`,
       description: b.description,
       parentOrganization: { '@id': `${base}/#org` },
       ...(b.url ? { sameAs: [b.url] } : {}),

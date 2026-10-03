@@ -61,6 +61,11 @@ test('brandHref points at the hub page, not at the brand site', () => {
   assert.equal(brandHref(data.brands[1]), '/gastro/');
 });
 
+test('brandHref sends a brand with redirect straight to its own site', () => {
+  const brand = { slug: 'event', redirect: 'https://riverside-event.ch' };
+  assert.equal(brandHref(brand, '/en'), 'https://riverside-event.ch');
+});
+
 test('renderNavLinks lists visible brands only', () => {
   const html = renderNavLinks(data);
   assert.match(html, /Ink<\/a>/);

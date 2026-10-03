@@ -56,8 +56,11 @@
     "name": "Riverside Event",
     "short": "Event",
     "sub": "TOTR · Special Events · Conventions",
-    "url": "",
-    "sites": {},
+    "url": "https://riverside-event.ch",
+    "redirect": "https://riverside-event.ch",
+    "sites": {
+      "ch": "https://riverside-event.ch"
+    },
     "status": "live",
     "schemaType": "EntertainmentBusiness",
     "description": "Tattoo on the Road (TOTR): Special Events und Conventions rund um Beauty und Tattoo.",

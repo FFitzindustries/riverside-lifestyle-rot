@@ -98,6 +98,9 @@ export function validate(data) {
     if (!BRAND_STATUS.has(b.status)) {
       errors.push(`brand "${b.slug}" has unknown status "${b.status}"`);
     }
+    if (b.redirect !== undefined && !/^https?:\/\//.test(b.redirect)) {
+      errors.push(`brand "${b.slug}" has a redirect that is not an absolute URL`);
+    }
     for (const code of Object.keys(b.sites ?? {})) {
       if (!countryCodes.has(code)) {
         errors.push(`brand "${b.slug}" has a site for unknown country "${code}"`);

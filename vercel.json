@@ -4,5 +4,17 @@
   "installCommand": "",
   "buildCommand": "node --test && node scripts/build.mjs",
   "outputDirectory": "dist",
-  "trailingSlash": true
+  "trailingSlash": true,
+  "redirects": [
+    {
+      "source": "/event/",
+      "destination": "https://riverside-event.ch",
+      "permanent": false
+    },
+    {
+      "source": "/en/event/",
+      "destination": "https://riverside-event.ch",
+      "permanent": false
+    }
+  ]
 }

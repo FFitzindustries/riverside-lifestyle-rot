@@ -244,10 +244,11 @@ export async function build({
       jsonLd: escapeForScriptBlock(buildJsonLd(data, lang.code)),
     }));
 
-    // A brand only gets a page when it has somewhere to send people. Event has
-    // no location yet, so its panel stays a tile rather than a dead link.
+    // A brand only gets a page when it has somewhere to send people.
     for (const brand of visibleBrands(data)) {
       if (!locationsForBrand(data, brand.slug).length) continue;
+      // A redirected brand lives on its own site; a hub page would only duplicate it.
+      if (brand.redirect) continue;
       await write(pagePath(lang, 'brand', brand.slug), renderTemplate(templates.brand, {
         ...common,
         title: `${escapeHtml(brand.name)} — ${siteName}`,

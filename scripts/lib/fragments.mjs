@@ -6,13 +6,15 @@ import { escapeHtml, attr } from './render.mjs';
 
 /**
  * The hub page for a brand. Panels and nav point here, not at the brand's own
- * site.
+ * site — unless the brand sets `redirect`.
  *
  * The prefix carries both the deployment base path and the language segment,
  * so an English page links to English pages. Building the href from the slug
  * alone sent every English visitor back into the German tree.
  */
 export function brandHref(brand, prefix = '') {
+  // A brand with `redirect` skips its hub page and sends visitors straight on.
+  if (brand.redirect) return brand.redirect;
   return `${prefix}/${brand.slug}/`;
 }
 
