@@ -94,7 +94,7 @@ test('no placeholder survives into the output', async () => {
 
 test('no page loads fonts from Google', async () => {
   const { out } = await buildToTmp();
-  for (const f of ['index.html', 'impressum.html', 'agb.html', 'datenschutz.html', 'ink/index.html']) {
+  for (const f of ['index.html', 'impressum.html', 'agb.html', 'datenschutz.html', 'standorte/index.html']) {
     const html = await readFile(join(out, f), 'utf8');
     assert.doesNotMatch(html, /fonts\.googleapis\.com/, `google fonts in ${f}`);
     assert.doesNotMatch(html, /fonts\.gstatic\.com/, `gstatic in ${f}`);
@@ -138,9 +138,9 @@ test('countUnfinished leaves finished markup alone', () => {
 // Generic, not a literal string list: catches class="todo" markers and any
 // "[free text]" bracket placeholder, so a forgotten class does not slip
 // through. These three pages must always be fully resolved.
-test('index, impressum and the ink hub page carry no open legal placeholders', async () => {
+test('index, impressum and the locations page carry no open legal placeholders', async () => {
   const { out } = await buildToTmp();
-  for (const f of ['index.html', 'impressum.html', 'ink/index.html']) {
+  for (const f of ['index.html', 'impressum.html', 'standorte/index.html']) {
     const html = await readFile(join(out, f), 'utf8');
     assert.equal(countUnfinished(html), 0, `${f} still has an unresolved legal placeholder`);
   }
@@ -247,8 +247,8 @@ test('sitemap shortens every index.html page to its directory URL', async () => 
   const { out } = await buildToTmp();
   const xml = await readFile(join(out, 'sitemap.xml'), 'utf8');
   const base = (await loadData('data')).holding.url.replace(/\/$/, '');
-  assert.match(xml, new RegExp(escapeRe(`<loc>${base}/ink/</loc>`)));
-  assert.doesNotMatch(xml, /ink\/index\.html/);
+  assert.match(xml, new RegExp(escapeRe(`<loc>${base}/standorte/</loc>`)));
+  assert.doesNotMatch(xml, /standorte\/index\.html/);
   await rm(out, { recursive: true, force: true });
 });
 
@@ -261,43 +261,36 @@ test('content text is escaped but intentional markup fields still render as real
   await rm(out, { recursive: true, force: true });
 });
 
-// Gastro and Event have their own sites now and send visitors straight on.
+// Every brand has its own site now and sends visitors straight on.
 test('a brand with redirect gets no hub page', async () => {
   const { out, result } = await buildToTmp();
-  for (const slug of ['gastro', 'event']) {
+  for (const slug of ['ink', 'beauty', 'gastro', 'event']) {
     assert.ok(!result.written.includes(`${slug}/index.html`), `${slug} still has a hub page`);
     assert.ok(!result.written.includes(`en/${slug}/index.html`), `en/${slug} still has a hub page`);
   }
   await rm(out, { recursive: true, force: true });
 });
 
-// Every brand with locations gets a hub page now, including the ones that own
-// a domain. The hub page is the only place that lists all countries; the
-// brand's own site only ever covers one of them.
-test('a brand with its own domain still gets a hub page', async () => {
-  const { result } = await buildToTmp();
-  assert.ok(result.written.includes('ink/index.html'));
-  assert.ok(result.written.includes('beauty/index.html'));
-});
-
-test('panels point at hub pages, redirected brands straight at their own site', async () => {
+test('panels point redirected brands straight at their own site', async () => {
   const { out } = await buildToTmp();
   const html = await readFile(join(out, 'index.html'), 'utf8');
-  assert.match(html, /href="\/ink\/" data-brand="ink"/);
-  assert.match(html, /href="\/beauty\/" data-brand="beauty"/);
+  assert.match(html, /href="https:\/\/www\.riverside-ink\.ch" data-brand="ink"/);
+  assert.match(html, /href="https:\/\/riverside-beauty\.ch" data-brand="beauty"/);
   assert.match(html, /href="https:\/\/riverside-gastro\.ch" data-brand="gastro"/);
   assert.match(html, /href="https:\/\/riverside-event\.ch" data-brand="event"/);
   // A redirect skips the location choice, so its call to action must not promise one.
-  const gastro = html.match(/data-brand="gastro"[\s\S]*?<\/a>/)[0];
-  assert.match(gastro, /Zur Website/);
-  assert.doesNotMatch(gastro, /Standort wählen/);
+  for (const slug of ['ink', 'beauty', 'gastro', 'event']) {
+    const zone = html.match(new RegExp(`data-brand="${slug}"[\\s\\S]*?<\\/a>`))[0];
+    assert.match(zone, /Zur Website/, `${slug} lost its call to action`);
+    assert.doesNotMatch(zone, /Standort wählen/, `${slug} still promises a location choice`);
+  }
   await rm(out, { recursive: true, force: true });
 });
 
 test('both languages are built, legal pages only in German', async () => {
   const { result } = await buildToTmp();
-  for (const page of ['index.html', 'ink/index.html', 'standorte/index.html',
-    'en/index.html', 'en/ink/index.html', 'en/locations/index.html']) {
+  for (const page of ['index.html', 'standorte/index.html',
+    'en/index.html', 'en/locations/index.html']) {
     assert.ok(result.written.includes(page), `${page} was not built`);
   }
   // Terms, impressum and privacy are binding texts under Swiss law. An
@@ -307,9 +300,9 @@ test('both languages are built, legal pages only in German', async () => {
 
 test('each page points hreflang at its own counterpart, not at the home page', async () => {
   const { out } = await buildToTmp();
-  const html = await readFile(join(out, 'ink/index.html'), 'utf8');
-  assert.match(html, /hreflang="en" href="[^"]*\/en\/ink\/"/);
-  assert.match(html, /hreflang="de" href="[^"]*\/ink\/"/);
+  const html = await readFile(join(out, 'standorte/index.html'), 'utf8');
+  assert.match(html, /hreflang="en" href="[^"]*\/en\/locations\/"/);
+  assert.match(html, /hreflang="de" href="[^"]*\/standorte\/"/);
   await rm(out, { recursive: true, force: true });
 });
 
@@ -425,8 +418,8 @@ test('hero media is addressed from the site root, not relative to the page', asy
 test('the english nav stays in the english tree', async () => {
   const { out } = await buildToTmp();
   const html = await readFile(join(out, 'en/index.html'), 'utf8');
-  assert.match(html, /href="\/en\/ink\/"/);
-  assert.doesNotMatch(html, /<a href="\/ink\/"/, 'an english page linked into the german tree');
+  assert.match(html, /href="\/en\/locations\/"/);
+  assert.doesNotMatch(html, /href="\/standorte\/"/, 'an english page linked into the german tree');
   await rm(out, { recursive: true, force: true });
 });
 

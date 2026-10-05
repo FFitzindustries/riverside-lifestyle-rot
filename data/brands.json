@@ -5,6 +5,7 @@
     "short": "Ink",
     "sub": "Tattoo · Piercing · Body Modification",
     "url": "https://www.riverside-ink.ch",
+    "redirect": "https://www.riverside-ink.ch",
     "sites": {
       "ch": "https://www.riverside-ink.ch"
     },
@@ -23,6 +24,7 @@
     "short": "Beauty",
     "sub": "Hyaluron · Botox · Peeling",
     "url": "https://riverside-beauty.ch",
+    "redirect": "https://riverside-beauty.ch",
     "sites": {
       "ch": "https://riverside-beauty.ch"
     },

@@ -7,6 +7,26 @@
   "trailingSlash": true,
   "redirects": [
     {
+      "source": "/ink/",
+      "destination": "https://www.riverside-ink.ch",
+      "permanent": false
+    },
+    {
+      "source": "/en/ink/",
+      "destination": "https://www.riverside-ink.ch",
+      "permanent": false
+    },
+    {
+      "source": "/beauty/",
+      "destination": "https://riverside-beauty.ch",
+      "permanent": false
+    },
+    {
+      "source": "/en/beauty/",
+      "destination": "https://riverside-beauty.ch",
+      "permanent": false
+    },
+    {
       "source": "/gastro/",
       "destination": "https://riverside-gastro.ch",
       "permanent": false
