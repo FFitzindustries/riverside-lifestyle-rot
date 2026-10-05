@@ -9,42 +9,42 @@
     {
       "source": "/ink/",
       "destination": "https://www.riverside-ink.ch",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/en/ink/",
       "destination": "https://www.riverside-ink.ch",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/beauty/",
       "destination": "https://riverside-beauty.ch",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/en/beauty/",
       "destination": "https://riverside-beauty.ch",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/gastro/",
       "destination": "https://riverside-gastro.ch",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/en/gastro/",
       "destination": "https://riverside-gastro.ch",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/event/",
       "destination": "https://riverside-event.ch",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/en/event/",
       "destination": "https://riverside-event.ch",
-      "permanent": false
+      "permanent": true
     }
   ]
 }
