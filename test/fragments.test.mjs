@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   brandHref, renderNavLinks, renderPanels, renderOpenLocations,
-  renderBrandLocations, renderLocationsByPlace, panelsClass,
+  renderBrandLocations, renderLocationsByPlace, renderSocial, panelsClass,
 } from '../scripts/lib/fragments.mjs';
 
 const content = {
@@ -288,4 +288,48 @@ test('a draft brand does not push the layout over the threshold', () => {
 
 test('five visible brands switch to the grid layout', () => {
   assert.equal(panelsClass(brandsFor(5)), 'panels panels--grid');
+});
+
+test('renderSocial lists the holding first, then every live brand with channels', () => {
+  const withSocial = {
+    ...data,
+    content: { ...content, siteName: 'Riverside Lifestyle' },
+    holding: { social: { facebook: 'https://facebook.com/lifestyle' } },
+    brands: [
+      { ...data.brands[0], social: { instagram: 'https://instagram.com/ink', tiktok: 'https://tiktok.com/@ink' } },
+      data.brands[1],
+      { ...data.brands[2], social: { instagram: 'https://instagram.com/event' } },
+    ],
+  };
+  const html = renderSocial(withSocial);
+  assert.ok(html.indexOf('Riverside Lifestyle') < html.indexOf('Riverside Ink'), 'holding is not first');
+  assert.match(html, /href="https:\/\/instagram\.com\/ink"/);
+  assert.match(html, /social--tiktok/);
+  assert.doesNotMatch(html, /Riverside Gastro/, 'a brand without channels got an empty row');
+  assert.doesNotMatch(html, /instagram\.com\/event/, 'a draft brand reached the social list');
+});
+
+test('renderSocial keeps gradient ids unique when a network repeats', () => {
+  const twice = {
+    ...data,
+    content: { ...content, siteName: 'Riverside Lifestyle' },
+    holding: { social: { instagram: 'https://instagram.com/a' } },
+    brands: [{ ...data.brands[0], social: { instagram: 'https://instagram.com/b' } }],
+  };
+  const ids = [...renderSocial(twice).matchAll(/id="([^"]+)"/g)].map((m) => m[1]);
+  assert.equal(ids.length, 2);
+  assert.equal(new Set(ids).size, 2);
+});
+
+test('renderLocationsByPlace hides a draft brand sitting at a location', () => {
+  const withDraft = {
+    ...data,
+    locations: [{ ...data.locations[0], brands: [
+      { brand: 'ink', companyId: 'c1', url: '' },
+      { brand: 'event', companyId: 'c4', url: '' },
+    ] }],
+  };
+  const html = renderLocationsByPlace(withDraft);
+  assert.match(html, /Riverside Ink/);
+  assert.doesNotMatch(html, /Riverside Event|>event</, 'a draft brand reached the location list');
 });

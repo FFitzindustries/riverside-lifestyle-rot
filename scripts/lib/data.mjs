@@ -94,12 +94,23 @@ export function validate(data) {
     errors.push(`duplicate company id "${dup}"`);
   }
 
+  for (const [network, url] of Object.entries(data.holding?.social ?? {})) {
+    if (typeof url !== 'string' || !/^https:\/\//.test(url)) {
+      errors.push(`holding has a ${network} link that is not an https URL`);
+    }
+  }
+
   for (const b of data.brands ?? []) {
     if (!BRAND_STATUS.has(b.status)) {
       errors.push(`brand "${b.slug}" has unknown status "${b.status}"`);
     }
     if (b.redirect !== undefined && !/^https?:\/\//.test(b.redirect)) {
       errors.push(`brand "${b.slug}" has a redirect that is not an absolute URL`);
+    }
+    for (const [network, url] of Object.entries(b.social ?? {})) {
+      if (typeof url !== 'string' || !/^https:\/\//.test(url)) {
+        errors.push(`brand "${b.slug}" has a ${network} link that is not an https URL`);
+      }
     }
     for (const code of Object.keys(b.sites ?? {})) {
       if (!countryCodes.has(code)) {

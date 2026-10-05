@@ -359,7 +359,7 @@
   {
     "slug": "malaga",
     "city": {
-      "de": "Malaga",
+      "de": "Málaga",
       "en": "Málaga"
     },
     "country": "es",
@@ -510,6 +510,26 @@
       {
         "brand": "gastro",
         "companyId": "rsl-abudhabi",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "slug": "thailand",
+    "city": "Thailand",
+    "country": "th",
+    "status": "planned",
+    "address": [],
+    "brandsConfirmed": false,
+    "brands": [
+      {
+        "brand": "ink",
+        "companyId": "rsl-thailand",
+        "url": ""
+      },
+      {
+        "brand": "gastro",
+        "companyId": "rsl-thailand",
         "url": ""
       }
     ]

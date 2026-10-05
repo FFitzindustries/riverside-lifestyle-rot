@@ -264,5 +264,11 @@
     "name": "Riverside Lifestyle Abu Dhabi LLC",
     "country": "ae",
     "exists": false
+  },
+  {
+    "id": "rsl-thailand",
+    "name": "Riverside Lifestyle Thailand",
+    "country": "th",
+    "exists": false
   }
 ]

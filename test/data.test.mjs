@@ -99,3 +99,18 @@ test('visibleBrands shows live and planned, liveBrands only live', () => {
   assert.deepEqual(liveBrands(data).map((b) => b.slug), ['a']);
   assert.deepEqual(visibleBrands(data).map((b) => b.slug), ['a', 'b']);
 });
+
+test('validate rejects social links that are not https', () => {
+  const data = {
+    holding: { name: 'H', social: { facebook: 'javascript:alert(1)' } },
+    brands: [{ slug: 'ink', status: 'live', order: 1, social: { instagram: 'http://instagram.com/x' } }],
+    countries: [{ code: 'ch', name: 'CH', order: 1 }],
+    companies: [],
+    locations: [],
+    content: {},
+  };
+  const errors = validate(data);
+  assert.equal(errors.length, 2);
+  assert.match(errors[0], /holding has a facebook link/);
+  assert.match(errors[1], /brand "ink" has a instagram link/);
+});

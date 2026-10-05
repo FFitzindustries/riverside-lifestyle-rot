@@ -16,7 +16,12 @@
       "video": "ink.mp4",
       "poster": "ink.jpg"
     },
-    "order": 1
+    "order": 1,
+    "social": {
+      "facebook": "https://www.facebook.com/riversideink.lifestyle",
+      "instagram": "https://www.instagram.com/riverside_ink.ch/",
+      "tiktok": "https://www.tiktok.com/@riverside_ink"
+    }
   },
   {
     "slug": "beauty",
@@ -35,7 +40,14 @@
       "video": "beauty.mp4",
       "poster": "beauty.jpg"
     },
-    "order": 2
+    "order": 2,
+    "social": {
+      "facebook": "https://www.facebook.com/riverside.beauty.ch",
+      "instagram": "https://www.instagram.com/riverside.beauty.ch",
+      "tiktok": "https://www.tiktok.com/@riverside.beauty.ch",
+      "pinterest": "https://www.pinterest.com/riversidebeauty",
+      "x": "https://x.com/riversidebeauty"
+    }
   },
   {
     "slug": "gastro",

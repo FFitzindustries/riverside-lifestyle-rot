@@ -10,5 +10,6 @@
   { "code": "ie", "name": { "de": "Irland", "en": "Ireland" }, "order": 9 },
   { "code": "gb", "name": { "de": "Vereinigtes Königreich", "en": "United Kingdom" }, "order": 10 },
   { "code": "us", "name": { "de": "USA", "en": "United States" }, "order": 11 },
-  { "code": "ae", "name": { "de": "Vereinigte Arabische Emirate", "en": "United Arab Emirates" }, "order": 12 }
+  { "code": "ae", "name": { "de": "Vereinigte Arabische Emirate", "en": "United Arab Emirates" }, "order": 12 },
+  { "code": "th", "name": { "de": "Thailand", "en": "Thailand" }, "order": 13 }
 ]

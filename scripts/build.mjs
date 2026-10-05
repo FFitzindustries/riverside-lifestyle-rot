@@ -7,7 +7,7 @@ import {
   renderTemplate, escapeHtml, attr,
 } from './lib/render.mjs';
 import {
-  renderNavLinks, renderPanels, renderPortal, renderOpenLocations, renderBrandLocations,
+  renderNavLinks, renderPanels, renderPortal, renderBrandLocations, renderSocial,
   renderLocationsByPlace, panelsClass,
 } from './lib/fragments.mjs';
 import { buildJsonLd } from './lib/schema.mjs';
@@ -232,7 +232,7 @@ export async function build({
       wwTitle: content.worldwide.title,
       wwSub: escapeHtml(content.worldwide.sub),
       locationsTitle: escapeHtml(content.worldwide.locationsTitle),
-      locations: renderOpenLocations(data, lang.code),
+      locations: renderLocationsByPlace(data, lang.code),
       contactTitle: escapeHtml(content.contact.title),
       contactAddress: holding.address.map((l) => escapeHtml(l)).join('<br>'),
       labelPhone: escapeHtml(content.contact.labelPhone),
@@ -240,7 +240,7 @@ export async function build({
       phone: escapeHtml(holding.phone),
       phoneHref: holding.phone.replace(/\s/g, ''),
       mail: escapeHtml(holding.mail),
-      facebookUrl: holding.social.facebook,
+      socialLinks: renderSocial(data),
       jsonLd: escapeForScriptBlock(buildJsonLd(data, lang.code)),
     }));
 
