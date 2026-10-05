@@ -7,6 +7,16 @@
   "trailingSlash": true,
   "redirects": [
     {
+      "source": "/gastro/",
+      "destination": "https://riverside-gastro.ch",
+      "permanent": false
+    },
+    {
+      "source": "/en/gastro/",
+      "destination": "https://riverside-gastro.ch",
+      "permanent": false
+    },
+    {
       "source": "/event/",
       "destination": "https://riverside-event.ch",
       "permanent": false

@@ -94,7 +94,7 @@ test('no placeholder survives into the output', async () => {
 
 test('no page loads fonts from Google', async () => {
   const { out } = await buildToTmp();
-  for (const f of ['index.html', 'impressum.html', 'agb.html', 'datenschutz.html', 'gastro/index.html']) {
+  for (const f of ['index.html', 'impressum.html', 'agb.html', 'datenschutz.html', 'ink/index.html']) {
     const html = await readFile(join(out, f), 'utf8');
     assert.doesNotMatch(html, /fonts\.googleapis\.com/, `google fonts in ${f}`);
     assert.doesNotMatch(html, /fonts\.gstatic\.com/, `gstatic in ${f}`);
@@ -138,9 +138,9 @@ test('countUnfinished leaves finished markup alone', () => {
 // Generic, not a literal string list: catches class="todo" markers and any
 // "[free text]" bracket placeholder, so a forgotten class does not slip
 // through. These three pages must always be fully resolved.
-test('index, impressum and the gastro hub page carry no open legal placeholders', async () => {
+test('index, impressum and the ink hub page carry no open legal placeholders', async () => {
   const { out } = await buildToTmp();
-  for (const f of ['index.html', 'impressum.html', 'gastro/index.html']) {
+  for (const f of ['index.html', 'impressum.html', 'ink/index.html']) {
     const html = await readFile(join(out, f), 'utf8');
     assert.equal(countUnfinished(html), 0, `${f} still has an unresolved legal placeholder`);
   }
@@ -247,8 +247,8 @@ test('sitemap shortens every index.html page to its directory URL', async () => 
   const { out } = await buildToTmp();
   const xml = await readFile(join(out, 'sitemap.xml'), 'utf8');
   const base = (await loadData('data')).holding.url.replace(/\/$/, '');
-  assert.match(xml, new RegExp(escapeRe(`<loc>${base}/gastro/</loc>`)));
-  assert.doesNotMatch(xml, /gastro\/index\.html/);
+  assert.match(xml, new RegExp(escapeRe(`<loc>${base}/ink/</loc>`)));
+  assert.doesNotMatch(xml, /ink\/index\.html/);
   await rm(out, { recursive: true, force: true });
 });
 
@@ -261,12 +261,13 @@ test('content text is escaped but intentional markup fields still render as real
   await rm(out, { recursive: true, force: true });
 });
 
-test('a brand without its own domain gets a hub page', async () => {
+// Gastro and Event have their own sites now and send visitors straight on.
+test('a brand with redirect gets no hub page', async () => {
   const { out, result } = await buildToTmp();
-  assert.ok(result.written.includes('gastro/index.html'));
-  const html = await readFile(join(out, 'gastro/index.html'), 'utf8');
-  assert.match(html, /Riverside Gastro/);
-  assert.match(html, /Grenzstrasse 25/);
+  for (const slug of ['gastro', 'event']) {
+    assert.ok(!result.written.includes(`${slug}/index.html`), `${slug} still has a hub page`);
+    assert.ok(!result.written.includes(`en/${slug}/index.html`), `en/${slug} still has a hub page`);
+  }
   await rm(out, { recursive: true, force: true });
 });
 
@@ -279,13 +280,17 @@ test('a brand with its own domain still gets a hub page', async () => {
   assert.ok(result.written.includes('beauty/index.html'));
 });
 
-test('every panel points at a hub page, never straight at a brand domain', async () => {
+test('panels point at hub pages, redirected brands straight at their own site', async () => {
   const { out } = await buildToTmp();
   const html = await readFile(join(out, 'index.html'), 'utf8');
-  assert.match(html, /href="\/gastro\/" data-brand="gastro"/);
   assert.match(html, /href="\/ink\/" data-brand="ink"/);
-  assert.doesNotMatch(html, /<a class="panel[^"]*" href="https:/,
-    'a panel skipped the country choice and linked straight to a brand site');
+  assert.match(html, /href="\/beauty\/" data-brand="beauty"/);
+  assert.match(html, /href="https:\/\/riverside-gastro\.ch" data-brand="gastro"/);
+  assert.match(html, /href="https:\/\/riverside-event\.ch" data-brand="event"/);
+  // A redirect skips the location choice, so its call to action must not promise one.
+  const gastro = html.match(/data-brand="gastro"[\s\S]*?<\/a>/)[0];
+  assert.match(gastro, /Zur Website/);
+  assert.doesNotMatch(gastro, /Standort wählen/);
   await rm(out, { recursive: true, force: true });
 });
 

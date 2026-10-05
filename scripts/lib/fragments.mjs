@@ -52,7 +52,7 @@ export function renderPanels(data, prefix = '', assetBase = '') {
       </div>`;
     const more = planned
       ? `<span class="panel-more panel-more--planned">${escapeHtml(data.content.picker.planned)}</span>`
-      : `<span class="panel-more">${escapeHtml(data.content.picker.choose)}</span>`;
+      : `<span class="panel-more">${escapeHtml(b.redirect ? data.content.picker.visitSite : data.content.picker.choose)}</span>`;
     const body = `
       <div class="panel-body">
         <h2>${escapeHtml(b.short)}</h2>
@@ -107,7 +107,7 @@ export function renderPortal(data, prefix = '', assetBase = '') {
       <span class="zone__body">
         <span class="zone__name">${escapeHtml(b.short)}</span>
         <span class="zone__sub">${escapeHtml(b.sub)}</span>
-        <span class="zone__cta">${escapeHtml(data.content.picker.choose)}</span>
+        <span class="zone__cta">${escapeHtml(b.redirect ? data.content.picker.visitSite : data.content.picker.choose)}</span>
       </span>
     </a>`;
   }).join('\n\n');
